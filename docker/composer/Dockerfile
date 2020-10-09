@@ -11,9 +11,9 @@ RUN apk --no-cache upgrade && \
 RUN apk add librdkafka librdkafka-dev \
         --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community
 
-RUN if [ -n "$USER_ID" ] && [ "$USER_ID" -lt 60001 ]; then \
-        usermod -u ${USER_ID} -o www-data; \
-    fi
+RUN /bin/bash -c 'if [ -n $USER_ID ] && [ $USER_ID -lt 60000 ]; then \
+        usermod -u ${USER_ID} www-data; \
+    fi'
 
 # PHP: copy bin
 COPY files/bin/ /usr/local/bin/
