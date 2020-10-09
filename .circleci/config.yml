@@ -1,4 +1,4 @@
-version: 2.1
+version: 2.1 # CircleCI version
 
 orbs:
   ci-caching: jobcloud/ci-caching@0.12
