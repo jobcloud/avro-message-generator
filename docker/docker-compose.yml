@@ -1,0 +1,15 @@
+version: '3.2'
+services:
+  php:
+    build:
+      context: ./
+      dockerfile: dev/php/Dockerfile
+      args:
+        USER_ID: ${USER_ID}
+    tty: true
+    hostname: avro-message-generator-php
+    container_name: avro-message-generator-php
+    volumes:
+      - ../:/var/www/html
+      - ~/.bash_aliases:/home/www-data/.bash_aliases:rw
+      - ~/.bash_history:/home/www-data/.bash_history:rw
