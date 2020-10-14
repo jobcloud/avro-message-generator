@@ -18,7 +18,7 @@ RUN usermod -s /bin/bash www-data && \
 # USER: copy home
 COPY --chown=www-data:www-data dev/php/files/user-home /home/www-data
 
-# PHP: Copy configuration files & remove dist files
+# PHP: Copy configuration files
 COPY dev/php/files/bin/ /usr/local/bin/
 
 # PHP: Install php extensions
