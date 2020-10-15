@@ -9,6 +9,8 @@ services:
     tty: true
     hostname: avro-message-generator-php
     container_name: avro-message-generator-php
+    extra_hosts:
+      - "jobcloud-kafka-schema-registry:172.17.0.1"
     volumes:
       - ../:/var/www/html
       - ~/.bash_aliases:/home/www-data/.bash_aliases:rw
