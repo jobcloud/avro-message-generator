@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator;
 
+use Exception;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use Jobcloud\Avro\Message\Generator\Schema\FieldsExtractorInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use Jobcloud\Avro\Message\Generator\Payload\GeneratorInterface as PayloadGeneratorInterface;
@@ -22,33 +22,28 @@ class Generator implements GeneratorInterface
 
     private PayloadGeneratorInterface $payloadGenerator;
 
-    private FieldsExtractorInterface $fieldsExtractor;
-
     /**
      * @param RecordSerializer $recordSerializer
      * @param AvroSchemaRegistryInterface $registry
      * @param PayloadGeneratorInterface $payloadGenerator
-     * @param FieldsExtractorInterface $fieldsExtractor
      */
     public function __construct(
         RecordSerializer $recordSerializer,
         AvroSchemaRegistryInterface $registry,
-        PayloadGeneratorInterface $payloadGenerator,
-        FieldsExtractorInterface $fieldsExtractor
+        PayloadGeneratorInterface $payloadGenerator
     ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
         $this->payloadGenerator = $payloadGenerator;
-        $this->fieldsExtractor = $fieldsExtractor;
     }
 
     /**
      * @param string $topicName
-     * @param array<string, mixed> $predefinedPayload
+     * @param mixed $predefinedPayload
      * @return string
-     * @throws SchemaRegistryException
+     * @throws SchemaRegistryException|Exception
      */
-    public function generateAvroMessageBody(string $topicName, array $predefinedPayload = []): string
+    public function generateAvroMessageBody(string $topicName, $predefinedPayload = null): string
     {
         $schema = $this->registry->getBodySchemaForTopic($topicName);
 
@@ -57,11 +52,11 @@ class Generator implements GeneratorInterface
 
     /**
      * @param string $topicName
-     * @param array<string, mixed> $predefinedPayload
+     * @param mixed $predefinedPayload
      * @return string
-     * @throws SchemaRegistryException
+     * @throws SchemaRegistryException|Exception
      */
-    public function generateAvroMessageKey(string $topicName, array $predefinedPayload = []): string
+    public function generateAvroMessageKey(string $topicName, $predefinedPayload = null): string
     {
         $schema = $this->registry->getKeySchemaForTopic($topicName);
 
@@ -70,13 +65,20 @@ class Generator implements GeneratorInterface
 
     /**
      * @param KafkaAvroSchemaInterface $schema
-     * @param array<string, mixed> $predefinedPayload
+     * @param mixed $predefinedPayload
      * @return string
+     * @throws SchemaRegistryException|Exception
      */
-    private function generateAvroBinaryString(KafkaAvroSchemaInterface $schema, array $predefinedPayload): string
+    private function generateAvroBinaryString(KafkaAvroSchemaInterface $schema, $predefinedPayload): string
     {
-        $fields = $this->fieldsExtractor->extract($schema);
+        $decodedSchema = json_decode((string) $schema->getDefinition(), true, 512, JSON_THROW_ON_ERROR);
 
-        var_dump($fields);// nas
+        $payload = $this->payloadGenerator->generate($decodedSchema, $predefinedPayload);
+
+        return $this->recordSerializer->encodeRecord(
+            $schema->getName(),
+            $schema->getDefinition(),
+            $payload
+        );
     }
 }
