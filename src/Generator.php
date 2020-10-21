@@ -7,6 +7,7 @@ namespace Jobcloud\Avro\Message\Generator;
 use Exception;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
+use Jobcloud\Avro\Message\Generator\Exception\MissingSchemaDefinitionException;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use Jobcloud\Avro\Message\Generator\Payload\GeneratorInterface as PayloadGeneratorInterface;
@@ -71,13 +72,21 @@ class Generator implements GeneratorInterface
      */
     private function generateAvroBinaryString(KafkaAvroSchemaInterface $schema, $predefinedPayload): string
     {
-        $decodedSchema = json_decode((string) $schema->getDefinition(), true, 512, JSON_THROW_ON_ERROR);
+        $schemaDefinition = $schema->getDefinition();
+
+        if (null === $schemaDefinition) {
+            throw new MissingSchemaDefinitionException(
+                sprintf('Was unable to load definition for schema %s', $schema->getName())
+            );
+        }
+
+        $decodedSchema = json_decode((string) $schemaDefinition, true, 512, JSON_THROW_ON_ERROR);
 
         $payload = $this->payloadGenerator->generate($decodedSchema, $predefinedPayload);
 
         return $this->recordSerializer->encodeRecord(
             $schema->getName(),
-            $schema->getDefinition(),
+            $schemaDefinition,
             $payload
         );
     }

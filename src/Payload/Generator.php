@@ -17,12 +17,16 @@ class Generator implements GeneratorInterface
 {
     private Faker $faker;
 
+    private int $fixedSizeLimit;
+
     /**
      * @param Faker $faker
+     * @param int $fixedSizeLimit
      */
-    public function __construct(Faker $faker)
+    public function __construct(Faker $faker, int $fixedSizeLimit = 1024)
     {
         $this->faker = $faker;
+        $this->fixedSizeLimit = $fixedSizeLimit;
     }
 
     /**
@@ -56,7 +60,9 @@ class Generator implements GeneratorInterface
             AvroSchemaTypes::FLOAT_TYPE,
             AvroSchemaTypes::DOUBLE_TYPE,
             AvroSchemaTypes::BYTES_TYPE,
-            AvroSchemaTypes::STRING_TYPE
+            AvroSchemaTypes::STRING_TYPE,
+            AvroSchemaTypes::FIXED_TYPE,
+            AvroSchemaTypes::ENUM_TYPE
         ];
     }
 
@@ -96,40 +102,99 @@ class Generator implements GeneratorInterface
 
                 break;
             case AvroSchemaTypes::RECORD_TYPE:
-
                 $payload = [];
 
                 foreach ($decodedSchema['fields'] as $field) {
-                    $payload[$field['name']] = $this->getPayload($field);
+                    $payload[$field['name']] = $this->getPayload($field, null, true);
+                }
+
+                if (null !== $predefinedPayload && is_array($predefinedPayload)) {
+                    $payload = $this->overrideRecordWithPredefinedPayload($payload, $predefinedPayload);
                 }
 
                 break;
             case AvroSchemaTypes::ENUM_TYPE:
+                $symbols = $decodedSchema['symbols'];
 
+                shuffle($symbols);
+
+                $payload = $symbols[0];
                 break;
             case AvroSchemaTypes::ARRAY_TYPE:
+                $payload = [];
 
+                $items = $decodedSchema['items'];
+
+                if (!is_array($items)) {
+                    $items = [
+                        'type' => $items
+                    ];
+                }
+
+                $payload[] = $this->getPayload($items, null, true);
+
+                if (null !== $predefinedPayload && is_array($predefinedPayload)) {
+                    $payload = array_merge($payload, array_values($predefinedPayload));
+                }
                 break;
             case AvroSchemaTypes::MAP_TYPE:
+                $values = $decodedSchema['values'];
 
+                if (!is_array($values)) {
+                    $values = [
+                        'type' => $values
+                    ];
+                }
+
+                $key = $this->faker->word;
+
+                $payload = [
+                    $key => $this->getPayload($values, null, true)
+                ];
+
+                if (null !== $predefinedPayload && is_array($predefinedPayload)) {
+                    foreach ($predefinedPayload as $key => $value) {
+                        $castKey = (string) $key;
+
+                        $payload[$castKey] = $value;
+                    }
+                }
                 break;
-            case AvroSchemaTypes::FIXED_TYPE:// nas check this
+            case AvroSchemaTypes::FIXED_TYPE:
+                $size = $decodedSchema['size'];
 
+                if ($size > $this->fixedSizeLimit) {
+                    $size = $this->fixedSizeLimit;
+                }
+
+                $payload = bin2hex(random_bytes($size));
                 break;
             default:
+                $payload = null;
+
+                $isSchemaTypeSupported = false;
+
                 if (is_array($decodedSchema['type'])) {
                     if ($decodedSchema['type'] === array_values($decodedSchema['type'])) {
                         // UNION TYPE
+                        if (null !== $predefinedPayload) {
+                            return $predefinedPayload;
+                        }
+
                         $payload = $this->extractPayloadFromUnionField($decodedSchema);
+
+                        $isSchemaTypeSupported = true;
                     }
 
                     if (isset($decodedSchema['type']['type'])) {
                         // NESTED SCHEMA
                         $payload = $this->getPayload($decodedSchema['type'], null, true);
+
+                        $isSchemaTypeSupported = true;
                     }
                 }
 
-                if (!isset($payload)) {
+                if (!$isSchemaTypeSupported) {
                     throw new UnsupportedAvroSchemaTypeException(sprintf(
                         'Schema type "%s" is not supported by Avro.',
                         $decodedSchema['type']
@@ -141,30 +206,30 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * @param array $decodedSchema
+     * @param array<string, mixed> $decodedSchema
      * @return string
      */
     private function getReadableStringByFieldName(array $decodedSchema): string
     {
         $fieldName = $decodedSchema['name'];
 
+        if ($fieldName === 'id' || mb_substr($fieldName, -2) === 'Id') {
+            return $this->faker->uuid;
+        }
+
+        if (mb_substr($fieldName, -2) === 'At') {
+            return (new DateTime())->format(DateTime::ATOM);
+        }
+
+        $predefinedOption = $this->extractPredefinedOptionFromDocField($decodedSchema);
+
+        if ('' !== $predefinedOption) {
+            return $predefinedOption;
+        }
+
         try {
             return (string) $this->faker->{$fieldName};
         } catch (InvalidArgumentException $e) {
-            if ($fieldName === 'id' || mb_substr($fieldName, -2) === 'Id') {
-                return $this->faker->uuid;
-            }
-
-            if (mb_substr($fieldName, -2) === 'At') {
-                return (new DateTime())->format(DateTime::ATOM);
-            }
-
-            $predefinedOption = $this->extractPredefinedOptionFromDocField($decodedSchema);
-
-            if ('' !== $predefinedOption) {
-                return $predefinedOption;
-            }
-
             if ($fieldName === 'language') {
                 return $this->faker->languageCode;
             }
@@ -182,7 +247,7 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * @param array $decodedSchema
+     * @param array<string, mixed> $decodedSchema
      * @return string
      */
     private function extractPredefinedOptionFromDocField(array $decodedSchema): string
@@ -220,7 +285,7 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * @param array $decodedSchema
+     * @param array<string, mixed> $decodedSchema
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException
      */
@@ -240,55 +305,28 @@ class Generator implements GeneratorInterface
 
         return $extractedPayloads[0];
     }
-//        if ($fieldName === 'url') {
-//            return $this->faker->url;
-//        }
-//
-//        if ($fieldName === 'text') {
-//            return $this->faker->text;
-//        }
-//
-//        if ($fieldName === 'email') {
-//            return $this->faker->email;
-//        }
-//
-//        if ($fieldName === 'name') {
-//            return $this->faker->name;
-//        }
-//
-//        if ($fieldName === 'title') {
-//            return $this->faker->title;
-//        }
-//
-//        if ($fieldName === 'firstName') {
-//            return $this->faker->firstName;
-//        }
-//
-//        if ($fieldName === 'lastName') {
-//            return $this->faker->lastName;
-//        }
-//
-//    /**
-//     * @param array $payload
-//     * @param array $predefinedPayload
-//     * @return array
-//     */
-//    private function overrideWithPredefinedPayload(array $payload, array $predefinedPayload): array
-//    {
-//        if ([] === $predefinedPayload) {
-//            return $payload;
-//        }
-//
-//        foreach ($predefinedPayload as $fieldName => $fieldValue) {
-//            if (is_array($fieldValue) && isset($payload[$fieldName]) && is_array($payload[$fieldName])) {
-//                $payload[$fieldName] = $this->overrideWithPredefinedPayload($payload[$fieldName], $fieldValue);
-//
-//                continue;
-//            }
-//
-//            $payload[$fieldName] = $fieldValue;
-//        }
-//
-//        return $payload;
-//    }
+
+    /**
+     * @param array<int|string, mixed> $payload
+     * @param array<string, mixed> $predefinedPayload
+     * @return array<int|string, mixed>
+     */
+    private function overrideRecordWithPredefinedPayload(array $payload, array $predefinedPayload): array
+    {
+        if ([] === $predefinedPayload) {
+            return $payload;
+        }
+
+        foreach ($predefinedPayload as $fieldName => $fieldValue) {
+            if (is_array($fieldValue) && isset($payload[$fieldName]) && is_array($payload[$fieldName])) {
+                $payload[$fieldName] = $this->overrideRecordWithPredefinedPayload($payload[$fieldName], $fieldValue);
+
+                continue;
+            }
+
+            $payload[$fieldName] = $fieldValue;
+        }
+
+        return $payload;
+    }
 }
