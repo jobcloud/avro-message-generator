@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Avro\Message\Generator\Payload;
 
 use DateTime;
+use Exception;
 use Faker\Generator as Faker;
 use InvalidArgumentException;
 use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException;
@@ -19,14 +20,21 @@ class Generator implements GeneratorInterface
 
     private int $fixedSizeLimit;
 
+    private int $dateTimeFieldsStepInDays;
+
+    private int $days;
+
     /**
      * @param Faker $faker
      * @param int $fixedSizeLimit
+     * @param int $dateTimeFieldsStepInDays
      */
-    public function __construct(Faker $faker, int $fixedSizeLimit = 1024)
+    public function __construct(Faker $faker, int $fixedSizeLimit = 1024, int $dateTimeFieldsStepInDays = 1)
     {
         $this->faker = $faker;
         $this->fixedSizeLimit = $fixedSizeLimit;
+        $this->dateTimeFieldsStepInDays = $dateTimeFieldsStepInDays;
+        $this->days = $dateTimeFieldsStepInDays;
     }
 
     /**
@@ -44,6 +52,8 @@ class Generator implements GeneratorInterface
         if (null !== $predefinedPayload && in_array($decodedSchema['type'], $this->getSimpleOverridableTypes())) {
             return $predefinedPayload;
         }
+
+        $this->days = $this->dateTimeFieldsStepInDays;
 
         return $this->getPayload($decodedSchema, $predefinedPayload);
     }
@@ -218,7 +228,15 @@ class Generator implements GeneratorInterface
         }
 
         if (mb_substr($fieldName, -2) === 'At') {
-            return (new DateTime())->format(DateTime::ATOM);
+            $daysCount = $this->days;
+
+            $this->days += $this->dateTimeFieldsStepInDays;
+
+            try {
+                return (new DateTime('+' . $daysCount . ' days'))->format(DateTime::ATOM);
+            } catch (Exception $e) {
+                return (new DateTime())->format(DateTime::ATOM);
+            }
         }
 
         $predefinedOption = $this->extractPredefinedOptionFromDocField($decodedSchema);
@@ -259,7 +277,15 @@ class Generator implements GeneratorInterface
         $doc = $decodedSchema['doc'];
 
         if (false !== mb_strpos($doc, "ISO-8601")) {
-            return (new DateTime())->format(DateTime::ATOM);
+            $daysCount = $this->days;
+
+            $this->days += $this->dateTimeFieldsStepInDays;
+
+            try {
+                return (new DateTime('+' . $daysCount . ' days'))->format(DateTime::ATOM);
+            } catch (Exception $e) {
+                return (new DateTime())->format(DateTime::ATOM);
+            }
         }
 
         $openBracketPosition = mb_strpos($doc, '[');

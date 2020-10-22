@@ -83,7 +83,7 @@ class Generator implements GeneratorInterface
         $decodedSchema = json_decode((string) $schemaDefinition, true, 512, JSON_THROW_ON_ERROR);
 
         $payload = $this->payloadGenerator->generate($decodedSchema, $predefinedPayload);
-
+var_dump($payload);die();// nas
         return $this->recordSerializer->encodeRecord(
             $schema->getName(),
             $schemaDefinition,
