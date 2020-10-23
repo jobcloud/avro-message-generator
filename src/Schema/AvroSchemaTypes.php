@@ -28,9 +28,6 @@ class AvroSchemaTypes
     public const DOUBLE_TYPE = "double";
 
     /** @var string */
-    public const BYTES_TYPE = "bytes";
-
-    /** @var string */
     public const STRING_TYPE = "string";
 
     /** @var string */
@@ -44,7 +41,4 @@ class AvroSchemaTypes
 
     /** @var string */
     public const MAP_TYPE = "map";
-
-    /** @var string */
-    public const FIXED_TYPE = "fixed";
 }

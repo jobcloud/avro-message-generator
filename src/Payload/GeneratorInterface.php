@@ -13,9 +13,10 @@ interface GeneratorInterface
 {
     /**
      * @param array<string, mixed> $decodedSchema
+     * @param array<string, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException
      */
-    public function generate(array $decodedSchema, $predefinedPayload);
+    public function generate(array $decodedSchema, array $dataDefinition, $predefinedPayload);
 }

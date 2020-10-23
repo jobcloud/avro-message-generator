@@ -47,7 +47,7 @@ class Provider implements ProviderInterface
     /**
      * @param string $dataDefinitionName
      * @return array<string, mixed>
-     * @throws Exception
+     * @throws UnexistingDataDefinitionFile|IncorrectDataDefinitionJson
      */
     public function getDataDefinition(string $dataDefinitionName): array
     {
@@ -59,7 +59,7 @@ class Provider implements ProviderInterface
     /**
      * @param string $dataDefinitionName
      * @return array<string, mixed>
-     * @throws UnexistingDataDefinitionFile|JsonException|IncorrectDataDefinitionJson
+     * @throws UnexistingDataDefinitionFile|IncorrectDataDefinitionJson
      */
     private function loadDataDefinition(string $dataDefinitionName): array
     {
@@ -87,7 +87,13 @@ class Provider implements ProviderInterface
             );
         }
 
-        return json_decode($dataDefinitionJson, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $dataDefinition = json_decode($dataDefinitionJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new IncorrectDataDefinitionJson($e->getMessage());
+        }
+
+        return $dataDefinition;
     }
 
     /**
