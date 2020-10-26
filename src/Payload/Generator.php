@@ -32,7 +32,7 @@ class Generator implements GeneratorInterface
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructure
      */
-    public function generate(array $decodedSchema, array $dataDefinition, $predefinedPayload)
+    public function generate(array $decodedSchema, array $dataDefinition, $predefinedPayload = null)
     {
         if (!isset($decodedSchema['type'])) {
             throw new UnsupportedAvroSchemaTypeException('Schema must contain type attribute.');
@@ -44,27 +44,7 @@ class Generator implements GeneratorInterface
             return $this->applyPredefinedPayload($payload, $predefinedPayload);
         }
 
-        return $this->applyDataToRecordTypeSchema($decodedSchema, $dataDefinition, $predefinedPayload);
-    }
-
-    /**
-     * @param string $schemaType
-     * @return bool
-     */
-    private function isSimpleSchemaMapping(string $schemaType): bool
-    {
-        return in_array($schemaType, [
-            AvroSchemaTypes::NULL_TYPE,
-            AvroSchemaTypes::BOOLEAN_TYPE,
-            AvroSchemaTypes::INT_TYPE,
-            AvroSchemaTypes::LONG_TYPE,
-            AvroSchemaTypes::FLOAT_TYPE,
-            AvroSchemaTypes::DOUBLE_TYPE,
-            AvroSchemaTypes::STRING_TYPE,
-            AvroSchemaTypes::ENUM_TYPE,
-            AvroSchemaTypes::ARRAY_TYPE,
-            AvroSchemaTypes::MAP_TYPE
-        ]) || (is_array($schemaType) && $schemaType === array_values($schemaType)); // union type
+        return $this->applyDataToComplexTypeSchema($decodedSchema, $dataDefinition, $predefinedPayload);
     }
 
     /**
@@ -109,13 +89,15 @@ class Generator implements GeneratorInterface
             $arguments = $dataDefinition['arguments'];
         }
 
+        $command = trim($dataDefinition['command']);
+
         try {
-            $payload = call_user_func_array(array($this->faker, trim($dataDefinition['command'])), $arguments);
+            $payload = call_user_func_array(array($this->faker, $command), $arguments);
 
             return $this->applyPredefinedPayload($payload, $predefinedPayload);
         } catch (InvalidArgumentException $e) {
             throw new InvalidDataDefinitionStructure(
-                'Invalid "Faker" command. ' . $e->getMessage()
+                sprintf('Invalid "Faker" command: %s. %s', $command, $e->getMessage())
             );
         }
     }
@@ -125,20 +107,63 @@ class Generator implements GeneratorInterface
      * @param array<string, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException
+     * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructure
      */
-    private function applyDataToRecordTypeSchema(array $decodedSchema, array $dataDefinition, $predefinedPayload)
+    private function applyDataToComplexTypeSchema(array $decodedSchema, array $dataDefinition, $predefinedPayload)
     {
-        if ($decodedSchema['type'] !== AvroSchemaTypes::RECORD_TYPE) {
-            throw new UnsupportedAvroSchemaTypeException(sprintf(
-                'Schema type "%s" is not supported by Avro.',
-                $decodedSchema['type']
-            ));
+        $schemaType = $decodedSchema['type'];
+
+        switch ($schemaType) {
+            case AvroSchemaTypes::ARRAY_TYPE:
+                $payload = [];
+
+                if (isset($dataDefinition['definition'])) {
+                    // nas
+
+                    break;
+                }
+
+                $payload[] = $this->applyData($dataDefinition, $predefinedPayload);
+
+                break;
+            case AvroSchemaTypes::MAP_TYPE:
+                $payload = [];
+
+                if (isset($dataDefinition['definition'])) {
+                    // nas
+
+                    break;
+                }
+
+                $payload[] = $this->applyData($dataDefinition, $predefinedPayload);
+
+                break;
+            case AvroSchemaTypes::RECORD_TYPE:
+                $payload = [];
+
+                // nas
+
+                break;
+            default:
+                $payload = null;
+
+                $isUnionType = false;
+
+                if (is_array($schemaType) && $schemaType === array_values($schemaType)) {
+                    $isUnionType = true;
+
+                    // nas
+                }
+
+                if (!$isUnionType) {
+                    throw new UnsupportedAvroSchemaTypeException(sprintf(
+                        'Schema type "%s" is not supported by Avro.',
+                        $schemaType
+                    ));
+                }
         }
 
-        $payload = [];
-
-        // nas
+        return $payload;
     }
 
     /**
@@ -157,5 +182,23 @@ class Generator implements GeneratorInterface
         }
 
         return $payload;
+    }
+
+    /**
+     * @param string $schemaType
+     * @return bool
+     */
+    private function isSimpleSchemaMapping(string $schemaType): bool
+    {
+        return in_array($schemaType, [
+            AvroSchemaTypes::NULL_TYPE,
+            AvroSchemaTypes::BOOLEAN_TYPE,
+            AvroSchemaTypes::INT_TYPE,
+            AvroSchemaTypes::LONG_TYPE,
+            AvroSchemaTypes::FLOAT_TYPE,
+            AvroSchemaTypes::DOUBLE_TYPE,
+            AvroSchemaTypes::STRING_TYPE,
+            AvroSchemaTypes::ENUM_TYPE
+        ]);
     }
 }

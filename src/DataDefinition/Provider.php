@@ -127,8 +127,8 @@ class Provider implements ProviderInterface
                 continue;
             }
 
-            if (isset($dataDefField['fields']) && is_array($dataDefField['fields'])) {
-                $dataDefinition[$key]['fields'] = $this->applyGlobalDataDefinition($dataDefField['fields']);
+            if (isset($dataDefField['definition']) && is_array($dataDefField['definition'])) {
+                $dataDefinition[$key]['definition'] = $this->applyGlobalDataDefinition($dataDefField['definition']);
             }
         }
 
