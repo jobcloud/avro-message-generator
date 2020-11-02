@@ -54,7 +54,7 @@ class Validator implements ValidatorInterface
      */
     public function validateComplexSchemaTypeDataDefinition(array $dataDefinition): void
     {
-        if (!isset($dataDefinition['definitions']) || !is_array($dataDefinition['definitions'])) {var_dump($dataDefinition);// nas
+        if (!isset($dataDefinition['definitions']) || !is_array($dataDefinition['definitions'])) {
             throw new InvalidDataDefinitionStructure(
                 'Data definition item which refers to complex schema type must contain "definitions" field.'
             );
