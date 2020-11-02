@@ -32,12 +32,12 @@
     "kwn/php-rdkafka-stubs": "^2.0",
     "jobcloud/php-kafka-lib": "^1.0.0",
     "flix-tech/avro-serde-php": "^1.4",
-    "fzaninotto/faker": "^1.9"
+    "fakerphp/faker": "^1.10"
   },
   "suggest": {
     "jobcloud/php-kafka-lib": "Is needed for fetching schemas from registry",
     "flix-tech/avro-serde-php": "Is needed for Avro support",
-    "fzaninotto/faker": "Is needed for predefined message data"
+    "fakerphp/faker": "Is needed for predefined message data"
   },
   "autoload": {
     "psr-4": {
