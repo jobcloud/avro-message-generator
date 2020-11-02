@@ -26,9 +26,6 @@ RUN pecl channel-update pecl.php.net && \
 
 USER www-data
 
-# COMPOSER: install prestissimo for composer parallelism
-RUN composer global require hirak/prestissimo
-
 WORKDIR /var/www/html
 
 ENTRYPOINT ["composer"]
