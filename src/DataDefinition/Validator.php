@@ -31,7 +31,7 @@ class Validator implements ValidatorInterface
         }
 
         if ($dataDefinition['type'] === 'value') {
-            if (!isset($dataDefinition['value'])) {
+            if (!array_key_exists('value', $dataDefinition)) {
                 throw new InvalidDataDefinitionStructure(
                     'Item of type "value" must have "value" field.'
                 );
@@ -54,7 +54,7 @@ class Validator implements ValidatorInterface
      */
     public function validateComplexSchemaTypeDataDefinition(array $dataDefinition): void
     {
-        if (!isset($dataDefinition['definitions']) || !is_array($dataDefinition['definitions'])) {
+        if (!isset($dataDefinition['definitions']) || !is_array($dataDefinition['definitions'])) {var_dump($dataDefinition);// nas
             throw new InvalidDataDefinitionStructure(
                 'Data definition item which refers to complex schema type must contain "definitions" field.'
             );

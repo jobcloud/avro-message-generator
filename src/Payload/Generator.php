@@ -57,10 +57,6 @@ class Generator implements GeneratorInterface
             throw new UnsupportedAvroSchemaTypeException('Schema must contain type attribute.');
         }
 
-        if (in_array($decodedSchema['type'], AvroSchemaTypes::getSimpleSchemaTypes())) {
-            return $this->applyDataToSimpleSchemaType($dataDefinition, $predefinedPayload);
-        }
-
         return $this->applyDataToComplexSchemaType($decodedSchema, $dataDefinition, $predefinedPayload);
     }
 
@@ -229,12 +225,19 @@ class Generator implements GeneratorInterface
                         continue;
                     }
 
-                    $this->dataDefinitionValidator->validateComplexSchemaTypeDataDefinition($definition);
+                    if ($this->isUnionSchemaType($field['type'])) {
+                        $payload[$fieldName] = $this->applyDataToComplexSchemaType(
+                            $field,
+                            $definition
+                        );
+                    } else {
+                        $this->dataDefinitionValidator->validateComplexSchemaTypeDataDefinition($definition);
 
-                    $payload[$fieldName] = $this->applyDataToComplexSchemaType(
-                        $field,
-                        $definition['definitions']
-                    );
+                        $payload[$fieldName] = $this->applyDataToComplexSchemaType(
+                            $field,
+                            $definition['definitions']
+                        );
+                    }
                 }
 
                 if (is_array($predefinedPayload)) {
@@ -247,67 +250,63 @@ class Generator implements GeneratorInterface
 
                 $isSchemaTypeSupported = false;
 
-                if (is_array($schemaType) && [] !== $schemaType) {
-                    if ($schemaType === array_values($schemaType)) {
-                        // UNION TYPE
-                        if (isset($dataDefinition['type'])) { // simple schema type
-                            if (null !== $predefinedPayload) {
-                                return $predefinedPayload;
-                            }
+                if ($this->isNestedSchemaType($schemaType)) {
+                    // NESTED SCHEMA
+                    $payload = $this->applyDataToComplexSchemaType($schemaType, $dataDefinition);
 
-                            $payload = $this->applyData($dataDefinition);
-                        } elseif (isset($dataDefinition['definitions'])) { // complex schema type
-                            $payload = $this->resolveUnionPayloadForComplexSchemaType(
-                                $schemaType,
-                                $dataDefinition['definitions']
+                    if (null !== $predefinedPayload) {
+                        if (is_integer(array_keys($payload)[0])) {
+                            $payload = $this->overrideArrayPayloadWithPredefinedPayload(
+                                $payload,
+                                $predefinedPayload,
+                                'is_integer'
                             );
-
-                            if (null !== $predefinedPayload) {
-                                if (is_array($payload)) {
-                                    if (is_integer(array_keys($payload)[0])) {
-                                        $payload = $this->overrideArrayPayloadWithPredefinedPayload(
-                                            $payload,
-                                            $predefinedPayload,
-                                            'is_integer'
-                                        );
-                                    } else {
-                                        $payload = $this->overrideArrayPayloadWithPredefinedPayload(
-                                            $payload,
-                                            $predefinedPayload,
-                                            'is_string'
-                                        );
-                                    }
-                                } else {
-                                    $payload = $predefinedPayload;
-                                }
-                            }
+                        } else {
+                            $payload = $this->overrideArrayPayloadWithPredefinedPayload(
+                                $payload,
+                                $predefinedPayload,
+                                'is_string'
+                            );
                         }
-
-                        $isSchemaTypeSupported = true;
                     }
 
-                    if (isset($schemaType['type'])) {
-                        // NESTED SCHEMA
-                        $payload = $this->applyDataToComplexSchemaType($schemaType, $dataDefinition);
+                    $isSchemaTypeSupported = true;
+                } elseif ($this->isUnionSchemaType($schemaType)) {
+                    // UNION TYPE
+                    if (isset($dataDefinition['type'])) { // simple schema type
+                        if (null !== $predefinedPayload) {
+                            return $predefinedPayload;
+                        }
+
+                        $payload = $this->applyData($dataDefinition);
+                    } elseif (isset($dataDefinition['definitions'])) { // complex schema type
+                        $payload = $this->resolveUnionPayloadForComplexSchemaType(
+                            $schemaType,
+                            $dataDefinition['definitions']
+                        );
 
                         if (null !== $predefinedPayload) {
-                            if (is_integer(array_keys($payload)[0])) {
-                                $payload = $this->overrideArrayPayloadWithPredefinedPayload(
-                                    $payload,
-                                    $predefinedPayload,
-                                    'is_integer'
-                                );
+                            if (is_array($payload)) {
+                                if (is_integer(array_keys($payload)[0])) {
+                                    $payload = $this->overrideArrayPayloadWithPredefinedPayload(
+                                        $payload,
+                                        $predefinedPayload,
+                                        'is_integer'
+                                    );
+                                } else {
+                                    $payload = $this->overrideArrayPayloadWithPredefinedPayload(
+                                        $payload,
+                                        $predefinedPayload,
+                                        'is_string'
+                                    );
+                                }
                             } else {
-                                $payload = $this->overrideArrayPayloadWithPredefinedPayload(
-                                    $payload,
-                                    $predefinedPayload,
-                                    'is_string'
-                                );
+                                $payload = $predefinedPayload;
                             }
                         }
-
-                        $isSchemaTypeSupported = true;
                     }
+
+                    $isSchemaTypeSupported = true;
                 }
 
                 if (!$isSchemaTypeSupported) {
@@ -385,5 +384,47 @@ class Generator implements GeneratorInterface
         }
 
         throw new InvalidDataDefinitionStructure('Invalid "definitions" applied for "Union" schema type.');
+    }
+
+    /**
+     * @param mixed $schemaType
+     * @return bool
+     */
+    private function isUnionSchemaType($schemaType): bool
+    {
+        if (false === is_array($schemaType)) {
+            return false;
+        }
+
+        if ([] === $schemaType) {
+            return false;
+        }
+
+        if (array_key_exists('type', $schemaType)) {
+            return false;
+        }
+
+        if ($schemaType !== array_values($schemaType)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param mixed $schemaType
+     * @return bool
+     */
+    private function isNestedSchemaType($schemaType): bool
+    {
+        if (false === is_array($schemaType)) {
+            return false;
+        }
+
+        if (false === array_key_exists('type', $schemaType)) {
+            return false;
+        }
+
+        return true;
     }
 }
