@@ -7,7 +7,7 @@ namespace Jobcloud\Avro\Message\Generator\Payload;
 use Exception;
 use Faker\Generator as Faker;
 use InvalidArgumentException;
-use Jobcloud\Avro\Message\Generator\DataDefinition\ValidatorInterface;
+use Jobcloud\Avro\Message\Generator\DataDefinition\ValidatorInterface as DataDefinitionValidatorInterface;
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionStructure;
 use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException;
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
@@ -19,42 +19,49 @@ class Generator implements GeneratorInterface
 {
     private Faker $faker;
 
-    private ValidatorInterface $validator;
+    private DataDefinitionValidatorInterface $dataDefinitionValidator;
 
     /**
      * @param Faker $faker
-     * @param ValidatorInterface $validator
+     * @param DataDefinitionValidatorInterface $dataDefinitionValidator
      */
     public function __construct(
         Faker $faker,
-        ValidatorInterface $validator
+        DataDefinitionValidatorInterface $dataDefinitionValidator
     ) {
         $this->faker = $faker;
-        $this->validator = $validator;
+        $this->dataDefinitionValidator = $dataDefinitionValidator;
     }
 
     /**
-     * @param array<string, mixed> $decodedSchema
+     * @param string|array<string, mixed> $decodedSchema
      * @param array<string|integer, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructure
      */
-    public function generate(array $decodedSchema, array $dataDefinition, $predefinedPayload = null)
+    public function generate($decodedSchema, array $dataDefinition, $predefinedPayload = null)
     {
+        if (is_string($decodedSchema)) {
+            if (!in_array($decodedSchema, AvroSchemaTypes::getSimpleSchemaTypes())) {
+                throw new UnsupportedAvroSchemaTypeException(sprintf(
+                    'Schema type "%s" is not supported by Avro.',
+                    $decodedSchema
+                ));
+            }
+
+            return $this->applyDataToSimpleSchemaType($dataDefinition, $predefinedPayload);
+        }
+
         if (!isset($decodedSchema['type'])) {
             throw new UnsupportedAvroSchemaTypeException('Schema must contain type attribute.');
         }
 
-        if ($this->isSimpleSchemaMapping($decodedSchema['type'])) {
-            if (null !== $predefinedPayload) {
-                return $predefinedPayload;
-            }
-
-            return $this->applyData($dataDefinition);
+        if (in_array($decodedSchema['type'], AvroSchemaTypes::getSimpleSchemaTypes())) {
+            return $this->applyDataToSimpleSchemaType($dataDefinition, $predefinedPayload);
         }
 
-        return $this->applyDataToComplexTypeSchema($decodedSchema, $dataDefinition, $predefinedPayload);
+        return $this->applyDataToComplexSchemaType($decodedSchema, $dataDefinition, $predefinedPayload);
     }
 
     /**
@@ -64,7 +71,7 @@ class Generator implements GeneratorInterface
      */
     private function applyData(array $dataDefinition)
     {
-        $this->validator->validateSimpleSchemaTypeDataDefinition($dataDefinition);
+        $this->dataDefinitionValidator->validateSimpleSchemaTypeDataDefinition($dataDefinition);
 
         if ($dataDefinition['type'] === 'value') {
             return $dataDefinition['value'];
@@ -88,13 +95,28 @@ class Generator implements GeneratorInterface
     }
 
     /**
+     * @param array<string|integer, mixed> $dataDefinition
+     * @param mixed $predefinedPayload
+     * @return mixed
+     * @throws InvalidDataDefinitionStructure
+     */
+    private function applyDataToSimpleSchemaType(array $dataDefinition, $predefinedPayload)
+    {
+        if (null !== $predefinedPayload) {
+            return $predefinedPayload;
+        }
+
+        return $this->applyData($dataDefinition);
+    }
+
+    /**
      * @param array<string, mixed> $decodedSchema
      * @param array<string|integer, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructure
      */
-    private function applyDataToComplexTypeSchema(
+    private function applyDataToComplexSchemaType(
         array $decodedSchema,
         array $dataDefinition,
         $predefinedPayload = null
@@ -105,13 +127,13 @@ class Generator implements GeneratorInterface
             case AvroSchemaTypes::ARRAY_TYPE:
                 $payload = [];
 
-                $isSimpleSchemaMapping = $this->isSimpleSchemaMapping($decodedSchema['items']);
+                $isSimpleSchemaMapping = in_array($decodedSchema['items'], AvroSchemaTypes::getSimpleSchemaTypes());
 
                 if (!$isSimpleSchemaMapping && !is_array($decodedSchema['items'])) {
                     throw new UnsupportedAvroSchemaTypeException(sprintf(
                         'Items field of schema type "%s" must contain either nested schema or one of values: %s',
                         $decodedSchema['type'],
-                        implode(", ", $this->getSimpleSchemaTypes())
+                        implode(", ", AvroSchemaTypes::getSimpleSchemaTypes())
                     ));
                 }
 
@@ -122,9 +144,9 @@ class Generator implements GeneratorInterface
                         continue;
                     }
 
-                    $this->validator->validateComplexSchemaTypeDataDefinition($definition);
+                    $this->dataDefinitionValidator->validateComplexSchemaTypeDataDefinition($definition);
 
-                    $payload[] = $this->applyDataToComplexTypeSchema(
+                    $payload[] = $this->applyDataToComplexSchemaType(
                         $decodedSchema['items'],
                         $definition['definitions']
                     );
@@ -142,18 +164,18 @@ class Generator implements GeneratorInterface
             case AvroSchemaTypes::MAP_TYPE:
                 $payload = [];
 
-                $isSimpleSchemaMapping = $this->isSimpleSchemaMapping($decodedSchema['values']);
+                $isSimpleSchemaMapping = in_array($decodedSchema['values'], AvroSchemaTypes::getSimpleSchemaTypes());
 
                 if (!$isSimpleSchemaMapping && !is_array($decodedSchema['values'])) {
                     throw new UnsupportedAvroSchemaTypeException(sprintf(
                         'Values field of schema type "%s" must contain either nested schema or one of values: %s',
                         $decodedSchema['type'],
-                        implode(", ", $this->getSimpleSchemaTypes())
+                        implode(", ", AvroSchemaTypes::getSimpleSchemaTypes())
                     ));
                 }
 
                 foreach ($dataDefinition as $definition) {
-                    $this->validator->validateDataDefinitionNameField($definition, $schemaType);
+                    $this->dataDefinitionValidator->validateDataDefinitionNameField($definition, $schemaType);
 
                     if ($isSimpleSchemaMapping) {
                         $payload[$definition['name']] = $this->applyData($definition);
@@ -161,9 +183,9 @@ class Generator implements GeneratorInterface
                         continue;
                     }
 
-                    $this->validator->validateComplexSchemaTypeDataDefinition($definition);
+                    $this->dataDefinitionValidator->validateComplexSchemaTypeDataDefinition($definition);
 
-                    $payload[$definition['name']] = $this->applyDataToComplexTypeSchema(
+                    $payload[$definition['name']] = $this->applyDataToComplexSchemaType(
                         $decodedSchema['values'],
                         $definition['definitions']
                     );
@@ -184,7 +206,7 @@ class Generator implements GeneratorInterface
                 $mappedDataDefinitionsByName = [];
 
                 foreach ($dataDefinition as $definition) {
-                    $this->validator->validateDataDefinitionNameField($definition, $schemaType);
+                    $this->dataDefinitionValidator->validateDataDefinitionNameField($definition, $schemaType);
 
                     $mappedDataDefinitionsByName[$definition['name']] = $definition;
                 }
@@ -192,11 +214,14 @@ class Generator implements GeneratorInterface
                 foreach ($decodedSchema['fields'] as $field) {
                     $fieldName = $field['name'];
 
-                    $this->validator->validateDataDefinitionByName($mappedDataDefinitionsByName, $fieldName);
+                    $this->dataDefinitionValidator->validateDataDefinitionByName(
+                        $mappedDataDefinitionsByName,
+                        $fieldName
+                    );
 
                     $definition = $mappedDataDefinitionsByName[$fieldName];
 
-                    $isSimpleSchemaMapping = $this->isSimpleSchemaMapping($field['type']);
+                    $isSimpleSchemaMapping = in_array($field['type'], AvroSchemaTypes::getSimpleSchemaTypes());
 
                     if ($isSimpleSchemaMapping) {
                         $payload[$fieldName] = $this->applyData($definition);
@@ -204,9 +229,9 @@ class Generator implements GeneratorInterface
                         continue;
                     }
 
-                    $this->validator->validateComplexSchemaTypeDataDefinition($definition);
+                    $this->dataDefinitionValidator->validateComplexSchemaTypeDataDefinition($definition);
 
-                    $payload[$fieldName] = $this->applyDataToComplexTypeSchema(
+                    $payload[$fieldName] = $this->applyDataToComplexSchemaType(
                         $field,
                         $definition['definitions']
                     );
@@ -263,7 +288,7 @@ class Generator implements GeneratorInterface
 
                     if (isset($schemaType['type'])) {
                         // NESTED SCHEMA
-                        $payload = $this->applyDataToComplexTypeSchema($schemaType, $dataDefinition);
+                        $payload = $this->applyDataToComplexSchemaType($schemaType, $dataDefinition);
 
                         if (null !== $predefinedPayload) {
                             if (is_integer(array_keys($payload)[0])) {
@@ -294,32 +319,6 @@ class Generator implements GeneratorInterface
         }
 
         return $payload;
-    }
-
-    /**
-     * @param string $schemaType
-     * @return bool
-     */
-    private function isSimpleSchemaMapping(string $schemaType): bool
-    {
-        return in_array($schemaType, $this->getSimpleSchemaTypes());
-    }
-
-    /**
-     * @return array<integer, string>
-     */
-    private function getSimpleSchemaTypes(): array
-    {
-        return [
-            AvroSchemaTypes::NULL_TYPE,
-            AvroSchemaTypes::BOOLEAN_TYPE,
-            AvroSchemaTypes::INT_TYPE,
-            AvroSchemaTypes::LONG_TYPE,
-            AvroSchemaTypes::FLOAT_TYPE,
-            AvroSchemaTypes::DOUBLE_TYPE,
-            AvroSchemaTypes::STRING_TYPE,
-            AvroSchemaTypes::ENUM_TYPE
-        ];
     }
 
     /**
@@ -379,8 +378,10 @@ class Generator implements GeneratorInterface
         /** @var array<string, mixed> $schemaType */
         foreach ($schemaTypes as $schemaType) {
             try {
-                return $this->applyDataToComplexTypeSchema($schemaType, $definitions);
-            } catch (Exception $e) {}
+                return $this->applyDataToComplexSchemaType($schemaType, $definitions);
+            } catch (Exception $e) {
+                continue;
+            }
         }
 
         throw new InvalidDataDefinitionStructure('Invalid "definitions" applied for "Union" schema type.');

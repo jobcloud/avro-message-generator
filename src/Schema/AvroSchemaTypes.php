@@ -41,4 +41,21 @@ class AvroSchemaTypes
 
     /** @var string */
     public const MAP_TYPE = "map";
+
+    /**
+     * @return array<integer, string>
+     */
+    public static function getSimpleSchemaTypes(): array
+    {
+        return [
+            self::NULL_TYPE,
+            self::BOOLEAN_TYPE,
+            self::INT_TYPE,
+            self::LONG_TYPE,
+            self::FLOAT_TYPE,
+            self::DOUBLE_TYPE,
+            self::STRING_TYPE,
+            self::ENUM_TYPE
+        ];
+    }
 }

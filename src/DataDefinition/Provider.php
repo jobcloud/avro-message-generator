@@ -16,24 +16,29 @@ class Provider implements ProviderInterface
 {
     private string $rootDirPath;
 
+    private GlobalDataDefinitionApplierInterface $globalDataDefinitionApplier;
+
     private string $dataDefinitionFilesExtension;
 
     private string $globalDataDefinitionName;
 
-    /** @var array<string, mixed> */
+    /** @var array<string|integer, mixed> */
     private array $globalDataDefinition;
 
     /**
      * @param string $rootDirPath
+     * @param GlobalDataDefinitionApplierInterface $globalDataDefinitionApplier
      * @param string $dataDefinitionFilesExtension
      * @param string $globalDataDefinitionName
      */
     public function __construct(
         string $rootDirPath,
+        GlobalDataDefinitionApplierInterface $globalDataDefinitionApplier,
         string $dataDefinitionFilesExtension = 'json',
         string $globalDataDefinitionName = 'global'
     ) {
         $this->rootDirPath = trim($rootDirPath, '/');
+        $this->globalDataDefinitionApplier = $globalDataDefinitionApplier;
         $this->dataDefinitionFilesExtension = $dataDefinitionFilesExtension;
         $this->globalDataDefinitionName = $globalDataDefinitionName;
 
@@ -46,19 +51,22 @@ class Provider implements ProviderInterface
 
     /**
      * @param string $dataDefinitionName
-     * @return array<string, mixed>
+     * @return array<string|integer, mixed>
      * @throws UnexistingDataDefinitionFile|IncorrectDataDefinitionJson
      */
     public function getDataDefinition(string $dataDefinitionName): array
     {
         $dataDefinition = $this->loadDataDefinition($dataDefinitionName);
 
-        return $this->applyGlobalDataDefinition($dataDefinition);
+        return $this->globalDataDefinitionApplier->applyGlobalDataDefinition(
+            $dataDefinition,
+            $this->globalDataDefinition
+        );
     }
 
     /**
      * @param string $dataDefinitionName
-     * @return array<string, mixed>
+     * @return array<string|integer, mixed>
      * @throws UnexistingDataDefinitionFile|IncorrectDataDefinitionJson
      */
     private function loadDataDefinition(string $dataDefinitionName): array
@@ -91,45 +99,6 @@ class Provider implements ProviderInterface
             $dataDefinition = json_decode($dataDefinitionJson, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw new IncorrectDataDefinitionJson($e->getMessage());
-        }
-
-        return $dataDefinition;
-    }
-
-    /**
-     * @param array<string, mixed> $dataDefinition
-     * @return array<string, mixed>
-     */
-    private function applyGlobalDataDefinition(array $dataDefinition): array
-    {
-        if ([] === $dataDefinition || [] === $this->globalDataDefinition) {
-            return $dataDefinition;
-        }
-
-        $mappedGlobalDataDefinition = [];
-
-        foreach ($this->globalDataDefinition as $globalDataDefinitionField) {
-            if (!isset($globalDataDefinitionField['name'])) {
-                continue;
-            }
-
-            $mappedGlobalDataDefinition[$globalDataDefinitionField['name']] = $globalDataDefinitionField;
-        }
-
-        if ([] === $mappedGlobalDataDefinition) {
-            return $dataDefinition;
-        }
-
-        foreach ($dataDefinition as $key => $dataDefField) {
-            if (isset($dataDefField['name']) && isset($mappedGlobalDataDefinition[$dataDefField['name']])) {
-                $dataDefinition[$key] = $mappedGlobalDataDefinition[$dataDefField['name']];
-
-                continue;
-            }
-
-            if (isset($dataDefField['definitions']) && is_array($dataDefField['definitions'])) {
-                $dataDefinition[$key]['definitions'] = $this->applyGlobalDataDefinition($dataDefField['definitions']);
-            }
         }
 
         return $dataDefinition;
