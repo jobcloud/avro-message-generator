@@ -11,5 +11,3 @@ services:
     container_name: avro-message-generator-php
     volumes:
       - ../:/var/www/html
-    ports:
-      - "9001:9000"

@@ -1,8 +1,8 @@
 FROM php:7.4-cli-alpine3.12
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-
 ARG USER_ID
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # SYS: install required packages
 RUN apk --no-cache upgrade && \

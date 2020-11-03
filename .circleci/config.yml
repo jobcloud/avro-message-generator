@@ -1,7 +1,7 @@
 version: 2.1 # CircleCI version
 
 orbs:
-  ci-caching: jobcloud/ci-caching@0.12
+  ci-caching: jobcloud/ci-caching@1.0.2
   ci-php: jobcloud/ci-php@0.32
 
 workflows:

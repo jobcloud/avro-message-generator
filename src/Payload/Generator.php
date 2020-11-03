@@ -57,6 +57,10 @@ class Generator implements GeneratorInterface
             throw new UnsupportedAvroSchemaTypeException('Schema must contain type attribute.');
         }
 
+        if (in_array($decodedSchema['type'], AvroSchemaTypes::getSimpleSchemaTypes())) {
+            return $this->applyDataToSimpleSchemaType($dataDefinition, $predefinedPayload);
+        }
+
         return $this->applyDataToComplexSchemaType($decodedSchema, $dataDefinition, $predefinedPayload);
     }
 
@@ -225,19 +229,14 @@ class Generator implements GeneratorInterface
                         continue;
                     }
 
-                    if ($this->isUnionSchemaType($field['type'])) {
-                        $payload[$fieldName] = $this->applyDataToComplexSchemaType(
-                            $field,
-                            $definition
-                        );
-                    } else {
-                        $this->dataDefinitionValidator->validateComplexSchemaTypeDataDefinition($definition);
-
-                        $payload[$fieldName] = $this->applyDataToComplexSchemaType(
-                            $field,
-                            $definition['definitions']
-                        );
+                    if (isset($definition['definitions'])) {
+                        $definition = $definition['definitions'];
                     }
+
+                    $payload[$fieldName] = $this->applyDataToComplexSchemaType(
+                        $field,
+                        $definition
+                    );
                 }
 
                 if (is_array($predefinedPayload)) {
@@ -397,10 +396,6 @@ class Generator implements GeneratorInterface
         }
 
         if ([] === $schemaType) {
-            return false;
-        }
-
-        if (array_key_exists('type', $schemaType)) {
             return false;
         }
 
