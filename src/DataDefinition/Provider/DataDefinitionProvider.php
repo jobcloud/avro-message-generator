@@ -8,7 +8,7 @@ use DirectoryIterator;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinition;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJson;
-use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinition;
+use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 use JsonException;
 
 /**
@@ -76,12 +76,14 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
     /**
      * @param string $dataDefinitionName
      * @return DataDefinition
-     * @throws UnexistingDataDefinition
+     * @throws UnexistingDataDefinitionException
      */
     public function getDataDefinition(string $dataDefinitionName): DataDefinition
     {
         if (!isset($this->dataDefinitions[$dataDefinitionName])) {
-            throw new UnexistingDataDefinition(sprintf('Data definition %s does not exist.', $dataDefinitionName));
+            throw new UnexistingDataDefinitionException(
+                sprintf('Data definition %s does not exist.', $dataDefinitionName)
+            );
         }
 
         return $this->dataDefinitions[$dataDefinitionName];

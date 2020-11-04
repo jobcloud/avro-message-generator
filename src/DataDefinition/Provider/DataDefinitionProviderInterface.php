@@ -6,7 +6,7 @@ namespace Jobcloud\Avro\Message\Generator\DataDefinition\Provider;
 
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinition;
 use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJson;
-use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinition;
+use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 
 /**
  * Interface DataDefinitionProviderInterface
@@ -22,7 +22,7 @@ interface DataDefinitionProviderInterface
     /**
      * @param string $dataDefinitionName
      * @return DataDefinition
-     * @throws UnexistingDataDefinition
+     * @throws UnexistingDataDefinitionException
      */
     public function getDataDefinition(string $dataDefinitionName): DataDefinition;
 }
