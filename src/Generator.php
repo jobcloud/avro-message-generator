@@ -11,7 +11,7 @@ use Jobcloud\Avro\Message\Generator\Exception\MissingSchemaDefinitionException;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use Jobcloud\Avro\Message\Generator\Payload\GeneratorInterface as PayloadGeneratorInterface;
-use Jobcloud\Avro\Message\Generator\DataDefinition\ProviderInterface as DataDefinitionProviderInterface;
+use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionProviderInterface;
 
 /**
  * Class Generator
