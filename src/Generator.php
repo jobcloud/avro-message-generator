@@ -7,11 +7,11 @@ namespace Jobcloud\Avro\Message\Generator;
 use Exception;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
+use Jobcloud\Avro\Message\Generator\DataDefinition\Provider\DataDefinitionProviderInterface;
 use Jobcloud\Avro\Message\Generator\Exception\MissingSchemaDefinitionException;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 use Jobcloud\Avro\Message\Generator\Payload\GeneratorInterface as PayloadGeneratorInterface;
-use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionProviderInterface;
 
 /**
  * Class Generator

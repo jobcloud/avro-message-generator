@@ -17,10 +17,10 @@ use JsonException;
 class DataDefinitionProvider implements DataDefinitionProviderInterface
 {
     /** @var string */
-    private const DATA_DEFINITION_FILES_EXTENSION = 'json';
+    public const GLOBAL_DATA_DEFINITION_NAME = 'global';
 
     /** @var string */
-    private const GLOBAL_DATA_DEFINITION_NAME = 'global';// nas maybe we will not need this
+    private const DATA_DEFINITION_FILES_EXTENSION = 'json';
 
     private string $rootDirPath;
 
@@ -62,14 +62,17 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
             $dataDefinitionJson = $file->fread($file->getSize());
 
             try {
-                $dataDefinition = json_decode($dataDefinitionJson, true, 512, JSON_THROW_ON_ERROR);
+                /** @var array<string|integer, mixed> $decodedDataDefinition */
+                $decodedDataDefinition = json_decode($dataDefinitionJson, true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 throw new IncorrectDataDefinitionJson($e->getMessage());
             }
 
             $dataDefinitionName = $file->getBasename(sprintf('.%s', self::DATA_DEFINITION_FILES_EXTENSION));
 
-            $this->dataDefinitions[$dataDefinitionName] = new DataDefinition($dataDefinition);// nas use factory here
+            $this->dataDefinitions[$dataDefinitionName] = new DataDefinition(
+                $decodedDataDefinition
+            );// nas use factory here
         }
     }
 
