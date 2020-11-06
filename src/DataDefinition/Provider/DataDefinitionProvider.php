@@ -7,7 +7,9 @@ namespace Jobcloud\Avro\Message\Generator\DataDefinition\Provider;
 use DirectoryIterator;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinition;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
-use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJson;
+use Jobcloud\Avro\Message\Generator\DataDefinition\Factory\DataDefinitionFactoryInterface;
+use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJsonException;
+use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
 use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 use JsonException;
 
@@ -17,7 +19,7 @@ use JsonException;
 class DataDefinitionProvider implements DataDefinitionProviderInterface
 {
     /** @var string */
-    public const GLOBAL_DATA_DEFINITION_NAME = 'global';
+    public const GLOBAL_DATA_DEFINITION_NAME = 'global';// nas
 
     /** @var string */
     private const DATA_DEFINITION_FILES_EXTENSION = 'json';
@@ -27,18 +29,24 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
     /** @var array<string, DataDefinitionInterface> */
     private array $dataDefinitions;
 
+    private DataDefinitionFactoryInterface $dataDefinitionFactory;
+
     /**
      * @param string $rootDirPath
+     * @param DataDefinitionFactoryInterface $dataDefinitionFactory
      */
-    public function __construct(string $rootDirPath)
-    {
+    public function __construct(
+        string $rootDirPath,
+        DataDefinitionFactoryInterface $dataDefinitionFactory
+    ) {
         $this->rootDirPath = trim($rootDirPath, '/');
+        $this->dataDefinitionFactory = $dataDefinitionFactory;
         $this->dataDefinitions = [];
     }
 
     /**
      * @return void
-     * @throws IncorrectDataDefinitionJson
+     * @throws IncorrectDataDefinitionJsonException|InvalidDataDefinitionFieldException
      */
     public function load(): void
     {
@@ -65,14 +73,14 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
                 /** @var array<string|integer, mixed> $decodedDataDefinition */
                 $decodedDataDefinition = json_decode($dataDefinitionJson, true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
-                throw new IncorrectDataDefinitionJson($e->getMessage());
+                throw new IncorrectDataDefinitionJsonException($e->getMessage());
             }
 
             $dataDefinitionName = $file->getBasename(sprintf('.%s', self::DATA_DEFINITION_FILES_EXTENSION));
 
-            $this->dataDefinitions[$dataDefinitionName] = new DataDefinition(
+            $this->dataDefinitions[$dataDefinitionName] = $this->dataDefinitionFactory->create(
                 $decodedDataDefinition
-            );// nas use factory here
+            );
         }
     }
 

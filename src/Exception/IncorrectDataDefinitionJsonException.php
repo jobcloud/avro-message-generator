@@ -7,9 +7,9 @@ namespace Jobcloud\Avro\Message\Generator\Exception;
 use Exception;
 
 /**
- * Class InvalidDataDefinitionStructure
+ * Class IncorrectDataDefinitionJsonException
  */
-class InvalidDataDefinitionStructure extends Exception
+class IncorrectDataDefinitionJsonException extends Exception
 {
 
 }

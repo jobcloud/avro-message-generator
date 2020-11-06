@@ -8,7 +8,7 @@ use Exception;
 use Faker\Generator as Faker;
 use InvalidArgumentException;
 use Jobcloud\Avro\Message\Generator\DataDefinition\ValidatorInterface as DataDefinitionValidatorInterface;
-use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionStructure;
+use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionStructureException;
 use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException;
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 
@@ -38,7 +38,7 @@ class Generator implements GeneratorInterface
      * @param array<string|integer, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructure
+     * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructureException
      */
     public function generate($decodedSchema, array $dataDefinition, $predefinedPayload = null)
     {
@@ -67,7 +67,7 @@ class Generator implements GeneratorInterface
     /**
      * @param array<string|integer, mixed> $dataDefinition
      * @return mixed
-     * @throws InvalidDataDefinitionStructure
+     * @throws InvalidDataDefinitionStructureException
      */
     private function applyData(array $dataDefinition)
     {
@@ -88,7 +88,7 @@ class Generator implements GeneratorInterface
         try {
             return call_user_func_array(array($this->faker, $command), $arguments);
         } catch (InvalidArgumentException $e) {
-            throw new InvalidDataDefinitionStructure(
+            throw new InvalidDataDefinitionStructureException(
                 sprintf('Invalid "Faker" command: %s. %s', $command, $e->getMessage())
             );
         }
@@ -98,7 +98,7 @@ class Generator implements GeneratorInterface
      * @param array<string|integer, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
-     * @throws InvalidDataDefinitionStructure
+     * @throws InvalidDataDefinitionStructureException
      */
     private function applyDataToSimpleSchemaType(array $dataDefinition, $predefinedPayload)
     {
@@ -114,7 +114,7 @@ class Generator implements GeneratorInterface
      * @param array<string|integer, mixed> $dataDefinition
      * @param mixed $predefinedPayload
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructure
+     * @throws UnsupportedAvroSchemaTypeException|InvalidDataDefinitionStructureException
      */
     private function applyDataToComplexSchemaType(
         array $decodedSchema,
@@ -367,7 +367,7 @@ class Generator implements GeneratorInterface
      * @param array<integer, array<string, mixed>> $schemaTypes
      * @param array<integer, mixed> $definitions
      * @return mixed
-     * @throws InvalidDataDefinitionStructure
+     * @throws InvalidDataDefinitionStructureException
      */
     private function resolveUnionPayloadForComplexSchemaType(
         array $schemaTypes,
@@ -382,7 +382,7 @@ class Generator implements GeneratorInterface
             }
         }
 
-        throw new InvalidDataDefinitionStructure('Invalid "definitions" applied for "Union" schema type.');
+        throw new InvalidDataDefinitionStructureException('Invalid "definitions" applied for "Union" schema type.');
     }
 
     /**
