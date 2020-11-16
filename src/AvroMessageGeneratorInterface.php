@@ -7,9 +7,9 @@ namespace Jobcloud\Avro\Message\Generator;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 
 /**
- * Interface GeneratorInterface
+ * Interface AvroMessageGeneratorInterface
  */
-interface GeneratorInterface
+interface AvroMessageGeneratorInterface
 {
     /**
      * @param string $topicName

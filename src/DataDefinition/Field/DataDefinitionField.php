@@ -20,6 +20,9 @@ class DataDefinitionField implements DataDefinitionFieldInterface
     /** @var string */
     public const ARGUMENTS_FIELD = 'arguments';
 
+    /** @var string */
+    public const PATH_DELIMITER = '.';
+
     /** @var mixed */
     private $value = null;
 

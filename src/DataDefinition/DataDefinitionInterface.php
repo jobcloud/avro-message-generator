@@ -12,13 +12,19 @@ use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionFieldInte
 interface DataDefinitionInterface
 {
     /**
+     * @param mixed $dataDefinitionFieldKey
+     * @return bool
+     */
+    public function hasDataDefinitionField($dataDefinitionFieldKey): bool;
+
+    /**
      * @return array<string|integer, DataDefinitionFieldInterface>
      */
     public function getDataDefinitionFields(): array;
 
     /**
-     * @param string|integer $dataDefinitionFieldKey
+     * @param mixed $dataDefinitionFieldKey
      * @return DataDefinitionFieldInterface|null
      */
-    public function getDataDefinitionField($dataDefinitionFieldKey = 0): ?DataDefinitionFieldInterface;
+    public function getDataDefinitionField($dataDefinitionFieldKey): ?DataDefinitionFieldInterface;
 }

@@ -23,6 +23,19 @@ class DataDefinition implements DataDefinitionInterface
     }
 
     /**
+     * @param mixed $dataDefinitionFieldKey
+     * @return bool
+     */
+    public function hasDataDefinitionField($dataDefinitionFieldKey): bool
+    {
+        if (false === $this->isValidDataDefinitionFieldKey($dataDefinitionFieldKey)) {
+            return false;
+        }
+
+        return array_key_exists($dataDefinitionFieldKey, $this->dataDefinitionFields);
+    }
+
+    /**
      * @return array<string|integer, DataDefinitionFieldInterface>
      */
     public function getDataDefinitionFields(): array
@@ -31,15 +44,24 @@ class DataDefinition implements DataDefinitionInterface
     }
 
     /**
-     * @param string|integer $dataDefinitionFieldKey
+     * @param mixed $dataDefinitionFieldKey
      * @return DataDefinitionFieldInterface|null
      */
-    public function getDataDefinitionField($dataDefinitionFieldKey = 0): ?DataDefinitionFieldInterface
+    public function getDataDefinitionField($dataDefinitionFieldKey): ?DataDefinitionFieldInterface
     {
-        if (!isset($this->dataDefinitionFields[$dataDefinitionFieldKey])) {
-            return null;
+        return $this->dataDefinitionFields[$dataDefinitionFieldKey];
+    }
+
+    /**
+     * @param mixed $dataDefinitionFieldKey
+     * @return bool
+     */
+    private function isValidDataDefinitionFieldKey($dataDefinitionFieldKey): bool
+    {
+        if (false === is_string($dataDefinitionFieldKey) && false === is_integer($dataDefinitionFieldKey)) {
+            return false;
         }
 
-        return $this->dataDefinitionFields[$dataDefinitionFieldKey];
+        return true;
     }
 }

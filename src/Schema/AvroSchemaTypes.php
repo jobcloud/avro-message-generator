@@ -45,6 +45,26 @@ class AvroSchemaTypes
     /**
      * @return array<integer, string>
      */
+    public static function getSupportedSchemaTypes(): array
+    {
+        return [
+            self::NULL_TYPE,
+            self::BOOLEAN_TYPE,
+            self::INT_TYPE,
+            self::LONG_TYPE,
+            self::FLOAT_TYPE,
+            self::DOUBLE_TYPE,
+            self::STRING_TYPE,
+            self::RECORD_TYPE,
+            self::ENUM_TYPE,
+            self::ARRAY_TYPE,
+            self::MAP_TYPE
+        ];
+    }
+
+    /**
+     * @return array<integer, string>
+     */
     public static function getSimpleSchemaTypes(): array
     {
         return [

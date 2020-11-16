@@ -7,16 +7,16 @@ namespace Jobcloud\Avro\Message\Generator;
 use Exception;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
-use Jobcloud\Avro\Message\Generator\DataDefinition\Provider\DataDefinitionProviderInterface;
 use Jobcloud\Avro\Message\Generator\Exception\MissingSchemaDefinitionException;
+use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\Factory\SchemaFieldValueResolverFactoryInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
-use Jobcloud\Avro\Message\Generator\Payload\GeneratorInterface as PayloadGeneratorInterface;
+use Jobcloud\Avro\Message\Generator\Payload\PayloadGeneratorInterface;
 
 /**
- * Class Generator
+ * Class AvroMessageGenerator
  */
-class Generator implements GeneratorInterface
+class AvroMessageGenerator implements AvroMessageGeneratorInterface
 {
     private RecordSerializer $recordSerializer;
 
@@ -24,23 +24,24 @@ class Generator implements GeneratorInterface
 
     private PayloadGeneratorInterface $payloadGenerator;
 
-    private DataDefinitionProviderInterface $dataDefinitionProvider;
+    private SchemaFieldValueResolverFactoryInterface $schemaFieldValueResolverFactory;
 
     /**
      * @param RecordSerializer $recordSerializer
      * @param AvroSchemaRegistryInterface $registry
      * @param PayloadGeneratorInterface $payloadGenerator
+     * @param SchemaFieldValueResolverFactoryInterface $schemaFieldValueResolverFactory
      */
     public function __construct(
         RecordSerializer $recordSerializer,
         AvroSchemaRegistryInterface $registry,
         PayloadGeneratorInterface $payloadGenerator,
-        DataDefinitionProviderInterface $dataDefinitionProvider
+        SchemaFieldValueResolverFactoryInterface $schemaFieldValueResolverFactory
     ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
         $this->payloadGenerator = $payloadGenerator;
-        $this->dataDefinitionProvider = $dataDefinitionProvider;
+        $this->schemaFieldValueResolverFactory = $schemaFieldValueResolverFactory;
     }
 
     /**
@@ -91,9 +92,9 @@ class Generator implements GeneratorInterface
 
         $decodedSchema = json_decode((string) $schemaDefinition, true, 512, JSON_THROW_ON_ERROR);
 
-        $dataDefinition = $this->dataDefinitionProvider->getDataDefinition($topicName);
+        $schemaFieldValueResolver = $this->schemaFieldValueResolverFactory->create($topicName, $predefinedPayload);
 
-        $payload = $this->payloadGenerator->generate($decodedSchema, $dataDefinition, $predefinedPayload);
+        $payload = $this->payloadGenerator->generate($decodedSchema, $schemaFieldValueResolver);
 
         return $this->recordSerializer->encodeRecord(
             $schema->getName(),
