@@ -66,7 +66,7 @@ class DataDefinitionField implements DataDefinitionFieldInterface
             if (null === $this->arguments) {
                 $this->arguments = [];
             }
-
+            /** @phpstan-ignore-next-line */
             return call_user_func_array(array($executor, $this->command), $this->arguments);
         }
 

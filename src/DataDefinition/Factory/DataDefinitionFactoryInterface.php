@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Jobcloud\Avro\Message\Generator\DataDefinition\Factory;
 
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinition;

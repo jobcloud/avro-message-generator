@@ -61,13 +61,19 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
                 continue;
             }
 
-            if(self::DATA_DEFINITION_FILES_EXTENSION !== $fileInfo->getExtension()) {
+            if (self::DATA_DEFINITION_FILES_EXTENSION !== $fileInfo->getExtension()) {
                 continue;
             }
 
             $file = $fileInfo->openFile();
 
             $dataDefinitionJson = $file->fread($file->getSize());
+
+            if (false === $dataDefinitionJson) {
+                throw new IncorrectDataDefinitionJsonException(
+                    sprintf('Incorrect data definition json in file "%s"', $file->getBasename())
+                );
+            }
 
             try {
                 /** @var array<string|integer, mixed> $decodedDataDefinition */
@@ -86,10 +92,10 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
 
     /**
      * @param string $dataDefinitionName
-     * @return DataDefinition
+     * @return DataDefinitionInterface
      * @throws UnexistingDataDefinitionException
      */
-    public function getDataDefinition(string $dataDefinitionName): DataDefinition
+    public function getDataDefinition(string $dataDefinitionName): DataDefinitionInterface
     {
         if (!isset($this->dataDefinitions[$dataDefinitionName])) {
             throw new UnexistingDataDefinitionException(

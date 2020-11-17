@@ -7,6 +7,7 @@ namespace Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver;
 use Faker\Generator as Faker;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionField as Field;
+use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionFieldInterface;
 use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 
@@ -61,6 +62,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             }
 
             if ($this->dataDefinition->hasDataDefinitionField($fieldName)) {
+                /** @var DataDefinitionFieldInterface $field */
                 $field = $this->dataDefinition->getDataDefinitionField($fieldName);
 
                 return $field->getValue($this->faker);
@@ -69,7 +71,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             return $this->generateValueBySchemaType($schemaType);
         }
 
-        // bested schema
+        // nested schema
         $predefinedFields = $this->getPredefinedFieldsFromPath($path);
 
         if (array_key_exists($fieldName, $predefinedFields)) {
@@ -79,13 +81,15 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
         $fieldKey = implode(Field::PATH_DELIMITER, $path) . Field::PATH_DELIMITER . $fieldName;
 
         if ($this->dataDefinition->hasDataDefinitionField($fieldKey)) {
+            /** @var DataDefinitionFieldInterface $field */
             $field = $this->dataDefinition->getDataDefinitionField($fieldKey);
 
             return $field->getValue($this->faker);
         }
 
-        if ($this->globalDataDefinition->hasDataDefinitionField($fieldKey)) {
-            $field = $this->globalDataDefinition->getDataDefinitionField($fieldKey);
+        if ($this->globalDataDefinition->hasDataDefinitionField($fieldName)) {
+            /** @var DataDefinitionFieldInterface $field */
+            $field = $this->globalDataDefinition->getDataDefinitionField($fieldName);
 
             return $field->getValue($this->faker);
         }
