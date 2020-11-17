@@ -19,7 +19,7 @@ use JsonException;
 class DataDefinitionProvider implements DataDefinitionProviderInterface
 {
     /** @var string */
-    public const GLOBAL_DATA_DEFINITION_NAME = 'global';// nas
+    public const GLOBAL_DATA_DEFINITION_NAME = 'global';
 
     /** @var string */
     private const DATA_DEFINITION_FILES_EXTENSION = 'json';

@@ -6,7 +6,9 @@ namespace Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver;
 
 use Faker\Generator as Faker;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
+use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionField as Field;
 use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
+use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 
 /**
  * Class SchemaFieldValueResolver
@@ -74,7 +76,21 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             return $predefinedFields[$fieldName];
         }
 
+        $fieldKey = implode(Field::PATH_DELIMITER, $path) . Field::PATH_DELIMITER . $fieldName;
 
+        if ($this->dataDefinition->hasDataDefinitionField($fieldKey)) {
+            $field = $this->dataDefinition->getDataDefinitionField($fieldKey);
+
+            return $field->getValue($this->faker);
+        }
+
+        if ($this->globalDataDefinition->hasDataDefinitionField($fieldKey)) {
+            $field = $this->globalDataDefinition->getDataDefinitionField($fieldKey);
+
+            return $field->getValue($this->faker);
+        }
+
+        return $this->generateValueBySchemaType($schemaType);
     }
 
     /**
@@ -83,7 +99,22 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
      */
     private function generateValueBySchemaType(string $schemaType)
     {
-
+        switch ($schemaType) {
+            case AvroSchemaTypes::NULL_TYPE:
+                return null;
+            case AvroSchemaTypes::BOOLEAN_TYPE:
+                return rand(0, 1) === 1;
+            case AvroSchemaTypes::INT_TYPE:
+            case AvroSchemaTypes::LONG_TYPE:
+                return $this->faker->randomDigit;
+            case AvroSchemaTypes::FLOAT_TYPE:
+            case AvroSchemaTypes::DOUBLE_TYPE:
+                return $this->faker->randomFloat(2);
+            case AvroSchemaTypes::ENUM_TYPE:
+                return $this->faker->regexify('[A-Za-z_][A-Za-z0-9_]*');
+            default: // AvroSchemaTypes::STRING_TYPE
+                return $this->faker->word;
+        }
     }
 
     /**
@@ -94,7 +125,17 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
     {
         $fields = [];
 
+        $pathCount = count($path);
 
+        for ($i = 0; $i < $pathCount; $i++) {
+            if (!is_array($this->predefinedPayload[$pathCount[$i]])) {
+                break;
+            }
+
+            if ($i === $pathCount - 1) {
+                $fields = $this->predefinedPayload[$pathCount[$i]];
+            }
+        }
 
         return $fields;
     }
