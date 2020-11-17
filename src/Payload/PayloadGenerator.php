@@ -64,7 +64,9 @@ class PayloadGenerator implements PayloadGeneratorInterface
             );
         }
 
-        $path[] = $name;
+        if (false === array_key_exists("namespace", $decodedSchema)) {
+            $path[] = $name;
+        }
 
         switch ($decodedSchema['type']) {
             case AvroSchemaTypes::RECORD_TYPE:
@@ -114,6 +116,8 @@ class PayloadGenerator implements PayloadGeneratorInterface
 
                 $isSchemaTypeSupported = false;
 
+                array_pop($path);
+
                 if (is_array($decodedSchema['type'])) {
                     if ($decodedSchema['type'] === array_values($decodedSchema['type'])) {
                         // UNION TYPE
@@ -129,6 +133,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
 
                     if (isset($decodedSchema['type']['type'])) {
                         // NESTED SCHEMA
+
                         $payload = $this->getPayload($decodedSchema['type'], $schemaFieldValueResolver, $path);
 
                         $isSchemaTypeSupported = true;

@@ -34,15 +34,22 @@ class SchemaFieldValueResolverFactory implements SchemaFieldValueResolverFactory
      * @param string $topicName
      * @param mixed $predefinedPayload
      * @return SchemaFieldValueResolverInterface
-     * @throws UnexistingDataDefinitionException
      */
     public function create(string $topicName, $predefinedPayload): SchemaFieldValueResolverInterface
     {
-        $dataDefinition = $this->dataDefinitionProvider->getDataDefinition($topicName);
+        try {
+            $dataDefinition = $this->dataDefinitionProvider->getDataDefinition($topicName);
+        } catch (UnexistingDataDefinitionException $e) {
+            $dataDefinition = null;
+        }
 
-        $globalDataDefiniton = $this->dataDefinitionProvider->getDataDefinition(
-            DataDefinitionProvider::GLOBAL_DATA_DEFINITION_NAME
-        );
+        try {
+            $globalDataDefiniton = $this->dataDefinitionProvider->getDataDefinition(
+                DataDefinitionProvider::GLOBAL_DATA_DEFINITION_NAME
+            );
+        } catch (UnexistingDataDefinitionException $e) {
+            $globalDataDefiniton = null;
+        }
 
         return new SchemaFieldValueResolver(
             $this->faker,

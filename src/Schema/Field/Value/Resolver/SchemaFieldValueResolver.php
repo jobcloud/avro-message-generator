@@ -18,23 +18,23 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 {
     private Faker $faker;
 
-    private DataDefinitionInterface $dataDefinition;
+    private ?DataDefinitionInterface $dataDefinition;
 
-    private DataDefinitionInterface $globalDataDefinition;
+    private ?DataDefinitionInterface $globalDataDefinition;
 
     /** @var mixed */
     private $predefinedPayload;
 
     /**
      * @param Faker $faker
-     * @param DataDefinitionInterface $dataDefinition
-     * @param DataDefinitionInterface $globalDataDefinition
+     * @param DataDefinitionInterface|null $dataDefinition
+     * @param DataDefinitionInterface|null $globalDataDefinition
      * @param mixed $predefinedPayload
      */
     public function __construct(
         Faker $faker,
-        DataDefinitionInterface $dataDefinition,
-        DataDefinitionInterface $globalDataDefinition,
+        ?DataDefinitionInterface $dataDefinition,
+        ?DataDefinitionInterface $globalDataDefinition,
         $predefinedPayload
     ) {
         $this->faker = $faker;
@@ -61,7 +61,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
                 return $this->predefinedPayload;
             }
 
-            if ($this->dataDefinition->hasDataDefinitionField($fieldName)) {
+            if (null !== $this->dataDefinition && $this->dataDefinition->hasDataDefinitionField($fieldName)) {
                 /** @var DataDefinitionFieldInterface $field */
                 $field = $this->dataDefinition->getDataDefinitionField($fieldName);
 
@@ -78,16 +78,16 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             return $predefinedFields[$fieldName];
         }
 
-        $fieldKey = implode(Field::PATH_DELIMITER, $path) . Field::PATH_DELIMITER . $fieldName;
+        $fieldKey = trim(implode(Field::PATH_DELIMITER, $path) . Field::PATH_DELIMITER . $fieldName, '.');
 
-        if ($this->dataDefinition->hasDataDefinitionField($fieldKey)) {
+        if (null !== $this->dataDefinition && $this->dataDefinition->hasDataDefinitionField($fieldKey)) {
             /** @var DataDefinitionFieldInterface $field */
             $field = $this->dataDefinition->getDataDefinitionField($fieldKey);
 
             return $field->getValue($this->faker);
         }
 
-        if ($this->globalDataDefinition->hasDataDefinitionField($fieldName)) {
+        if (null !== $this->globalDataDefinition && $this->globalDataDefinition->hasDataDefinitionField($fieldName)) {
             /** @var DataDefinitionFieldInterface $field */
             $field = $this->globalDataDefinition->getDataDefinitionField($fieldName);
 
