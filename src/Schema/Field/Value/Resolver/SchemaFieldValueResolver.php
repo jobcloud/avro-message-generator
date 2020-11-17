@@ -128,12 +128,12 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
         $pathCount = count($path);
 
         for ($i = 0; $i < $pathCount; $i++) {
-            if (!is_array($this->predefinedPayload[$pathCount[$i]])) {
+            if (!is_array($this->predefinedPayload[$path[$i]])) {
                 break;
             }
 
             if ($i === $pathCount - 1) {
-                $fields = $this->predefinedPayload[$pathCount[$i]];
+                $fields = $this->predefinedPayload[$path[$i]];
             }
         }
 
