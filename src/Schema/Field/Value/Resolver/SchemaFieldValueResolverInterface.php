@@ -12,11 +12,10 @@ use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
 interface SchemaFieldValueResolverInterface
 {
     /**
-     * @param string $schemaType
-     * @param string|integer $fieldName
+     * @param array<string, mixed> $decodedSchema
      * @param array<integer, string> $path
      * @return mixed
      * @throws MissingCommandExecutorException
      */
-    public function getValue(string $schemaType, $fieldName, array $path);
+    public function getValue(array $decodedSchema, array $path);
 }

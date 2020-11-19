@@ -54,15 +54,14 @@ class PayloadGenerator implements PayloadGeneratorInterface
         SchemaFieldValueResolverInterface $schemaFieldValueResolver,
         array $path = []
     ) {
-        $name = $decodedSchema['name'] ?? 0;
-
         if (true === in_array($decodedSchema['type'], AvroSchemaTypes::getSimpleSchemaTypes())) {
             return $schemaFieldValueResolver->getValue(
-                $decodedSchema['type'],
-                $name,
+                $decodedSchema,
                 $path
             );
         }
+
+        $name = $decodedSchema['name'] ?? 0;
 
         if (false === array_key_exists("namespace", $decodedSchema)) {
             $path[] = $name;
@@ -101,8 +100,9 @@ class PayloadGenerator implements PayloadGeneratorInterface
                 }
 
                 $key = $schemaFieldValueResolver->getValue(
-                    AvroSchemaTypes::STRING_TYPE,
-                    0,
+                    [
+                        'type' => AvroSchemaTypes::STRING_TYPE
+                    ],
                     []
                 );
 

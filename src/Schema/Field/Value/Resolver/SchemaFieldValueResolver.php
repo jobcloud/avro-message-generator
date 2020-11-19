@@ -45,14 +45,17 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 
 
     /**
-     * @param string $schemaType
-     * @param string|integer $fieldName
+     * @param array<string, mixed> $decodedSchema
      * @param array<integer, string> $path
      * @return mixed
      * @throws MissingCommandExecutorException
      */
-    public function getValue(string $schemaType, $fieldName, array $path)
+    public function getValue(array $decodedSchema, array $path)
     {
+        $schemaType = $decodedSchema['type'];
+
+        $fieldName = $decodedSchema['name'] ?? 0;
+
         // root schema
         if ([] === $path) {
             if (null !== $this->predefinedPayload) {
@@ -76,7 +79,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
                 return $field->getValue($this->faker);
             }
 
-            return $this->generateValueBySchemaType($schemaType);
+            return $this->generateValueBySchemaType($decodedSchema);
         }
 
         // nested schema
@@ -102,15 +105,17 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             return $field->getValue($this->faker);
         }
 
-        return $this->generateValueBySchemaType($schemaType);
+        return $this->generateValueBySchemaType($decodedSchema);
     }
 
     /**
-     * @param string $schemaType
+     * @param array<string, mixed> $decodedSchema
      * @return mixed
      */
-    private function generateValueBySchemaType(string $schemaType)
+    private function generateValueBySchemaType(array $decodedSchema)
     {
+        $schemaType = $decodedSchema['type'];
+
         switch ($schemaType) {
             case AvroSchemaTypes::NULL_TYPE:
                 return null;
@@ -123,7 +128,12 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             case AvroSchemaTypes::DOUBLE_TYPE:
                 return $this->faker->randomFloat(2);
             case AvroSchemaTypes::ENUM_TYPE:
-                return $this->faker->regexify('[A-Za-z_][A-Za-z0-9_]*');
+                $symbols = $decodedSchema['symbols'];
+
+                shuffle($symbols);
+
+
+                return $symbols[0];
             default: // AvroSchemaTypes::STRING_TYPE
                 return $this->faker->word;
         }
