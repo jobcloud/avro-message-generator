@@ -46,15 +46,13 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 
     /**
      * @param string $schemaType
-     * @param string|null $fieldName
+     * @param string|integer $fieldName
      * @param array<integer, string> $path
      * @return mixed
      * @throws MissingCommandExecutorException
      */
-    public function getValue(string $schemaType, ?string $fieldName, array $path)
+    public function getValue(string $schemaType, $fieldName, array $path)
     {
-        $fieldName = $fieldName ?? 0;
-
         // root schema
         if ([] === $path) {
             if (null !== $this->predefinedPayload) {
@@ -64,6 +62,16 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             if (null !== $this->dataDefinition && $this->dataDefinition->hasDataDefinitionField($fieldName)) {
                 /** @var DataDefinitionFieldInterface $field */
                 $field = $this->dataDefinition->getDataDefinitionField($fieldName);
+
+                return $field->getValue($this->faker);
+            }
+
+            if (
+                null !== $this->globalDataDefinition &&
+                $this->globalDataDefinition->hasDataDefinitionField($fieldName)
+            ) {
+                /** @var DataDefinitionFieldInterface $field */
+                $field = $this->globalDataDefinition->getDataDefinitionField($fieldName);
 
                 return $field->getValue($this->faker);
             }

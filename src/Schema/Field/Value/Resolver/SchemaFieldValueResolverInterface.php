@@ -13,10 +13,10 @@ interface SchemaFieldValueResolverInterface
 {
     /**
      * @param string $schemaType
-     * @param string|null $fieldName
+     * @param string|integer $fieldName
      * @param array<integer, string> $path
      * @return mixed
      * @throws MissingCommandExecutorException
      */
-    public function getValue(string $schemaType, ?string $fieldName, array $path);
+    public function getValue(string $schemaType, $fieldName, array $path);
 }
