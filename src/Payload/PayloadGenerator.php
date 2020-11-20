@@ -17,12 +17,22 @@ class PayloadGenerator implements PayloadGeneratorInterface
     /** @var string */
     public const UNSUPPORTED_SCHEMA_TYPE_ERROR_MESSAGE = 'Schema type "%s" is not supported.';
 
+    private SchemaFieldValueResolverInterface $schemaFieldValueResolver;
+
+    /**
+     * @param SchemaFieldValueResolverInterface $schemaFieldValueResolver
+     */
+    public function __construct(SchemaFieldValueResolverInterface $schemaFieldValueResolver)
+    {
+        $this->schemaFieldValueResolver = $schemaFieldValueResolver;
+    }
+
     /**
      * @param string|array<string, mixed> $decodedSchema
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException|MissingCommandExecutorException
      */
-    public function generate($decodedSchema, SchemaFieldValueResolverInterface $schemaFieldValueResolver)
+    public function generate($decodedSchema)
     {
         if (is_string($decodedSchema)) {
             $decodedSchema = [
@@ -39,12 +49,11 @@ class PayloadGenerator implements PayloadGeneratorInterface
             ));
         }
 
-        return $this->getPayload($decodedSchema, $schemaFieldValueResolver, [], true);
+        return $this->getPayload($decodedSchema, [], true);
     }
 
     /**
      * @param array<string, mixed> $decodedSchema
-     * @param SchemaFieldValueResolverInterface $schemaFieldValueResolver
      * @param array<integer, string> $path
      * @param bool $isRootSchema
      * @return mixed
@@ -52,12 +61,11 @@ class PayloadGenerator implements PayloadGeneratorInterface
      */
     private function getPayload(
         array $decodedSchema,
-        SchemaFieldValueResolverInterface $schemaFieldValueResolver,
         array $path = [],
         bool $isRootSchema = false
     ) {
         if (true === in_array($decodedSchema['type'], AvroSchemaTypes::getSimpleSchemaTypes())) {
-            return $schemaFieldValueResolver->getValue(
+            return $this->schemaFieldValueResolver->getValue(
                 $decodedSchema,
                 $path,
                 $isRootSchema
@@ -75,7 +83,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
                 $payload = [];
 
                 foreach ($decodedSchema['fields'] as $field) {
-                    $payload[$field['name']] = $this->getPayload($field, $schemaFieldValueResolver, $path);
+                    $payload[$field['name']] = $this->getPayload($field, $path);
                 }
 
                 return $payload;
@@ -90,7 +98,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
                     ];
                 }
 
-                $payload[] = $this->getPayload($items, $schemaFieldValueResolver, $path);
+                $payload[] = $this->getPayload($items, $path);
 
                 return $payload;
             case AvroSchemaTypes::MAP_TYPE:
@@ -102,7 +110,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
                     ];
                 }
 
-                $key = $schemaFieldValueResolver->getValue(
+                $key = $this->schemaFieldValueResolver->getValue(
                     [
                         'type' => AvroSchemaTypes::STRING_TYPE
                     ],
@@ -110,7 +118,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
                 );
 
                 $payload = [
-                    $key => $this->getPayload($values, $schemaFieldValueResolver, $path)
+                    $key => $this->getPayload($values, $path)
                 ];
 
                 return $payload;
@@ -127,7 +135,6 @@ class PayloadGenerator implements PayloadGeneratorInterface
 
                         $payload = $this->getPayloadFromUnionField(
                             $decodedSchema,
-                            $schemaFieldValueResolver,
                             $path
                         );
 
@@ -137,7 +144,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
                     if (isset($decodedSchema['type']['type'])) {
                         // NESTED SCHEMA
 
-                        $payload = $this->getPayload($decodedSchema['type'], $schemaFieldValueResolver, $path);
+                        $payload = $this->getPayload($decodedSchema['type'], $path);
 
                         $isSchemaTypeSupported = true;
                     }
@@ -156,14 +163,12 @@ class PayloadGenerator implements PayloadGeneratorInterface
 
     /**
      * @param array<string, mixed> $decodedSchema
-     * @param SchemaFieldValueResolverInterface $schemaFieldValueResolver
      * @param array<integer, string> $path
      * @return mixed
      * @throws UnsupportedAvroSchemaTypeException|MissingCommandExecutorException
      */
     private function getPayloadFromUnionField(
         array $decodedSchema,
-        SchemaFieldValueResolverInterface $schemaFieldValueResolver,
         array $path
     ) {
         $types = $decodedSchema['type'];
@@ -173,7 +178,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
         foreach ($types as $type) {
             $decodedSchema['type'] = $type;
 
-            $extractedPayloads[] = $this->getPayload($decodedSchema, $schemaFieldValueResolver, $path);
+            $extractedPayloads[] = $this->getPayload($decodedSchema, $path);
         }
 
         shuffle($extractedPayloads);

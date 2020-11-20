@@ -8,10 +8,10 @@ use Exception;
 use FlixTech\AvroSerializer\Objects\RecordSerializer;
 use FlixTech\SchemaRegistryApi\Exception\SchemaRegistryException;
 use Jobcloud\Avro\Message\Generator\Exception\MissingSchemaDefinitionException;
+use Jobcloud\Avro\Message\Generator\Payload\Factory\PayloadGeneratorFactoryInterface;
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\Factory\SchemaFieldValueResolverFactoryInterface;
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
-use Jobcloud\Avro\Message\Generator\Payload\PayloadGeneratorInterface;
 
 /**
  * Class AvroMessageGenerator
@@ -22,25 +22,25 @@ class AvroMessageGenerator implements AvroMessageGeneratorInterface
 
     private AvroSchemaRegistryInterface $registry;
 
-    private PayloadGeneratorInterface $payloadGenerator;
+    private PayloadGeneratorFactoryInterface $payloadGeneratorFactory;
 
     private SchemaFieldValueResolverFactoryInterface $schemaFieldValueResolverFactory;
 
     /**
      * @param RecordSerializer $recordSerializer
      * @param AvroSchemaRegistryInterface $registry
-     * @param PayloadGeneratorInterface $payloadGenerator
+     * @param PayloadGeneratorFactoryInterface $payloadGeneratorFactory
      * @param SchemaFieldValueResolverFactoryInterface $schemaFieldValueResolverFactory
      */
     public function __construct(
         RecordSerializer $recordSerializer,
         AvroSchemaRegistryInterface $registry,
-        PayloadGeneratorInterface $payloadGenerator,
+        PayloadGeneratorFactoryInterface $payloadGeneratorFactory,
         SchemaFieldValueResolverFactoryInterface $schemaFieldValueResolverFactory
     ) {
         $this->recordSerializer = $recordSerializer;
         $this->registry = $registry;
-        $this->payloadGenerator = $payloadGenerator;
+        $this->payloadGeneratorFactory = $payloadGeneratorFactory;
         $this->schemaFieldValueResolverFactory = $schemaFieldValueResolverFactory;
     }
 
@@ -94,7 +94,9 @@ class AvroMessageGenerator implements AvroMessageGeneratorInterface
 
         $schemaFieldValueResolver = $this->schemaFieldValueResolverFactory->create($topicName, $predefinedPayload);
 
-        $payload = $this->payloadGenerator->generate($decodedSchema, $schemaFieldValueResolver);
+        $payloadGenerator = $this->payloadGeneratorFactory->create($schemaFieldValueResolver);
+
+        $payload = $payloadGenerator->generate($decodedSchema);
 
         return $this->recordSerializer->encodeRecord(
             $schema->getName(),
