@@ -14,8 +14,9 @@ interface SchemaFieldValueResolverInterface
     /**
      * @param array<string, mixed> $decodedSchema
      * @param array<integer, string> $path
+     * @param bool $isRootSchema
      * @return mixed
      * @throws MissingCommandExecutorException
      */
-    public function getValue(array $decodedSchema, array $path);
+    public function getValue(array $decodedSchema, array $path, bool $isRootSchema = false);
 }

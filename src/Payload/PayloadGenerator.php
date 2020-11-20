@@ -39,31 +39,34 @@ class PayloadGenerator implements PayloadGeneratorInterface
             ));
         }
 
-        return $this->getPayload($decodedSchema, $schemaFieldValueResolver);
+        return $this->getPayload($decodedSchema, $schemaFieldValueResolver, [], true);
     }
 
     /**
      * @param array<string, mixed> $decodedSchema
      * @param SchemaFieldValueResolverInterface $schemaFieldValueResolver
      * @param array<integer, string> $path
+     * @param bool $isRootSchema
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException|MissingCommandExecutorException
+     * @throws MissingCommandExecutorException|UnsupportedAvroSchemaTypeException
      */
     private function getPayload(
         array $decodedSchema,
         SchemaFieldValueResolverInterface $schemaFieldValueResolver,
-        array $path = []
+        array $path = [],
+        bool $isRootSchema = false
     ) {
         if (true === in_array($decodedSchema['type'], AvroSchemaTypes::getSimpleSchemaTypes())) {
             return $schemaFieldValueResolver->getValue(
                 $decodedSchema,
-                $path
+                $path,
+                $isRootSchema
             );
         }
 
         $name = $decodedSchema['name'] ?? 0;
 
-        if (false === array_key_exists("namespace", $decodedSchema)) {
+        if (false === $isRootSchema) {
             $path[] = $name;
         }
 

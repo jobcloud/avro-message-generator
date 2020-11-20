@@ -47,17 +47,15 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
     /**
      * @param array<string, mixed> $decodedSchema
      * @param array<integer, string> $path
+     * @param bool $isRootSchema
      * @return mixed
      * @throws MissingCommandExecutorException
      */
-    public function getValue(array $decodedSchema, array $path)
+    public function getValue(array $decodedSchema, array $path, bool $isRootSchema = false)
     {
-        $schemaType = $decodedSchema['type'];
-
         $fieldName = $decodedSchema['name'] ?? 0;
 
-        // root schema
-        if ([] === $path) {
+        if ($isRootSchema) {
             if (null !== $this->predefinedPayload) {
                 return $this->predefinedPayload;
             }
@@ -68,34 +66,22 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 
                 return $field->getValue($this->faker);
             }
+        } else {
+            // nested schema
+            $predefinedFields = $this->getPredefinedFieldsFromPath($path);
 
-            if (
-                null !== $this->globalDataDefinition &&
-                $this->globalDataDefinition->hasDataDefinitionField($fieldName)
-            ) {
+            if (array_key_exists($fieldName, $predefinedFields)) {
+                return $predefinedFields[$fieldName];
+            }
+
+            $fieldKey = trim(implode(Field::PATH_DELIMITER, $path) . Field::PATH_DELIMITER . $fieldName, '.');
+
+            if (null !== $this->dataDefinition && $this->dataDefinition->hasDataDefinitionField($fieldKey)) {
                 /** @var DataDefinitionFieldInterface $field */
-                $field = $this->globalDataDefinition->getDataDefinitionField($fieldName);
+                $field = $this->dataDefinition->getDataDefinitionField($fieldKey);
 
                 return $field->getValue($this->faker);
             }
-
-            return $this->generateValueBySchemaType($decodedSchema);
-        }
-
-        // nested schema
-        $predefinedFields = $this->getPredefinedFieldsFromPath($path);
-
-        if (array_key_exists($fieldName, $predefinedFields)) {
-            return $predefinedFields[$fieldName];
-        }
-
-        $fieldKey = trim(implode(Field::PATH_DELIMITER, $path) . Field::PATH_DELIMITER . $fieldName, '.');
-
-        if (null !== $this->dataDefinition && $this->dataDefinition->hasDataDefinitionField($fieldKey)) {
-            /** @var DataDefinitionFieldInterface $field */
-            $field = $this->dataDefinition->getDataDefinitionField($fieldKey);
-
-            return $field->getValue($this->faker);
         }
 
         if (null !== $this->globalDataDefinition && $this->globalDataDefinition->hasDataDefinitionField($fieldName)) {
@@ -147,15 +133,27 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
     {
         $fields = [];
 
-        $pathCount = count($path);
+        if (is_array($this->predefinedPayload)) {
+            if ($path === []) {
+                $fields = $this->predefinedPayload;
+            } else {
+                $pathCount = count($path);
 
-        for ($i = 0; $i < $pathCount; $i++) {
-            if (!is_array($this->predefinedPayload[$path[$i]])) {
-                break;
-            }
+                $predefinedPayload = $this->predefinedPayload;
 
-            if ($i === $pathCount - 1) {
-                $fields = $this->predefinedPayload[$path[$i]];
+                for ($i = 0; $i < $pathCount; $i++) {
+                    if (!is_array($predefinedPayload[$path[$i]])) {
+                        break;
+                    }
+
+                    if ($i === $pathCount - 1) {
+                        $fields = $predefinedPayload[$path[$i]];
+
+                        break;
+                    }
+
+                    $predefinedPayload = $predefinedPayload[$path[$i]];
+                }
             }
         }
 
