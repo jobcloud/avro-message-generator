@@ -43,7 +43,6 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
         $this->predefinedPayload = $predefinedPayload;
     }
 
-
     /**
      * @param array<string, mixed> $decodedSchema
      * @param array<integer, string> $path

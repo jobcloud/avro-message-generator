@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jobcloud\Avro\Message\Generator\DataDefinition\Factory;
 
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinition;
+use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\Factory\DataDefinitionFieldFactoryInterface;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\Validator\DataDefinitionFieldValidatorInterface;
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
@@ -28,10 +29,10 @@ class DataDefinitionFactory implements DataDefinitionFactoryInterface
 
     /**
      * @param array<string|integer, mixed> $decodedDataDefinition
-     * @return DataDefinition
+     * @return DataDefinitionInterface
      * @throws InvalidDataDefinitionFieldException
      */
-    public function create(array $decodedDataDefinition): DataDefinition
+    public function create(array $decodedDataDefinition): DataDefinitionInterface
     {
         try {
             $this->dataDefinitionFieldValidator->validateDataDefinitionField($decodedDataDefinition);
