@@ -12,6 +12,7 @@ use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJsonExcepti
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
 use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 use JsonException;
+use RuntimeException;
 
 /**
  * Class DataDefinitionProvider
@@ -57,23 +58,27 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
                 continue;
             }
 
-            if (!$fileInfo->isReadable()) {
-                continue;
-            }
-
             if (self::DATA_DEFINITION_FILES_EXTENSION !== $fileInfo->getExtension()) {
                 continue;
             }
 
-            $file = $fileInfo->openFile();
+            try {
+                $file = $fileInfo->openFile();
+            } catch (RuntimeException $e) {
+                throw new IncorrectDataDefinitionJsonException(
+                    sprintf('Missing read permission for data definition json file: "%s".', $fileInfo->getBasename())
+                );
+            }
+
+            if ($file->getSize() === 0) {
+                throw new IncorrectDataDefinitionJsonException(
+                    sprintf('Empty data definition json file: "%s".', $file->getBasename())
+                );
+            }
 
             $dataDefinitionJson = $file->fread($file->getSize());
 
-            if (false === $dataDefinitionJson) {
-                throw new IncorrectDataDefinitionJsonException(
-                    sprintf('Incorrect data definition json in file "%s"', $file->getBasename())
-                );
-            }
+            $dataDefinitionJson = $dataDefinitionJson === false ? '' : $dataDefinitionJson;
 
             try {
                 /** @var array<string|integer, mixed> $decodedDataDefinition */
@@ -99,7 +104,7 @@ class DataDefinitionProvider implements DataDefinitionProviderInterface
     {
         if (!isset($this->dataDefinitions[$dataDefinitionName])) {
             throw new UnexistingDataDefinitionException(
-                sprintf('Data definition %s does not exist.', $dataDefinitionName)
+                sprintf('Data definition "%s" does not exist.', $dataDefinitionName)
             );
         }
 

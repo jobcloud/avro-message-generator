@@ -28,7 +28,10 @@ class DataDefinitionFieldValidator implements DataDefinitionFieldValidatorInterf
     {
         if (array_diff(array_keys($decodedDataDefinitionField), self::SUPPORTED_FIELDS) !== []) {
             throw new InvalidDataDefinitionFieldException(
-                sprintf('Data definition field can contain following fields: %s.', implode(",", self::SUPPORTED_FIELDS))
+                sprintf(
+                    'Data definition field can contain following fields: %s.',
+                    implode(", ", self::SUPPORTED_FIELDS)
+                )
             );
         }
 
@@ -46,16 +49,6 @@ class DataDefinitionFieldValidator implements DataDefinitionFieldValidatorInterf
         }
 
         if (array_key_exists(DataDefinitionField::COMMAND_FIELD, $decodedDataDefinitionField)) {
-            if (array_key_exists(DataDefinitionField::VALUE_FIELD, $decodedDataDefinitionField)) {
-                throw new InvalidDataDefinitionFieldException(
-                    sprintf(
-                        'Data definition field of type "%s" can not contain "%s" field.',
-                        DataDefinitionField::COMMAND_FIELD,
-                        DataDefinitionField::VALUE_FIELD
-                    )
-                );
-            }
-
             if (
                 !is_string($decodedDataDefinitionField[DataDefinitionField::COMMAND_FIELD]) ||
                 '' === trim($decodedDataDefinitionField[DataDefinitionField::COMMAND_FIELD])
