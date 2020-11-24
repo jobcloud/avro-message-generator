@@ -13,7 +13,7 @@ use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionFieldInte
 class DataDefinitionFieldFactory implements DataDefinitionFieldFactoryInterface
 {
     /**
-     * @param array<string, mixed> $decodedDataDefinitionField
+     * @param array<int|string, mixed> $decodedDataDefinitionField
      * @return DataDefinitionFieldInterface
      */
     public function create(array $decodedDataDefinitionField): DataDefinitionFieldInterface

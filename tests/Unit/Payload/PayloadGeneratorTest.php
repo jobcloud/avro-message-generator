@@ -234,6 +234,39 @@ class PayloadGeneratorTest extends TestCase
         ]));
     }
 
+    public function testGenerateForComplexArraySchemaWithZeroIndex(): void
+    {
+        /** @var SchemaFieldValueResolverInterface|MockObject $schemaFieldValueResolver */
+        $schemaFieldValueResolver = $this->getMockBuilder(SchemaFieldValueResolverInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getValue'])
+            ->getMock();
+
+        $schemaFieldValueResolver->expects(self::once())->method('getValue')
+            ->with([
+                'name' => 'testField',
+                'type' => 'string'
+            ], [0])
+            ->willReturn('some string');
+
+        $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
+
+        self::assertSame([
+            ['testField' => 'some string']
+        ], $payloadGenerator->generate([
+            'type' => 'array',
+            'items' => [
+                'type' => 'record',
+                'fields' => [
+                    [
+                        'name' => 'testField',
+                        'type' => 'string'
+                    ]
+                ]
+            ]
+        ]));
+    }
+
     public function testGenerateForNotSupportedSchemaWithComplexStructure(): void
     {
         /** @var SchemaFieldValueResolverInterface|MockObject $schemaFieldValueResolver */

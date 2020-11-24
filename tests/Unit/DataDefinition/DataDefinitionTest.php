@@ -24,6 +24,15 @@ class DataDefinitionTest extends TestCase
         self::assertFalse($dataDefinition->hasDataDefinitionField(null));
     }
 
+    public function testHasDataDefinitionFieldByNumKey(): void
+    {
+        $dataDefinition = new DataDefinition([
+            new DataDefinitionField([])
+        ]);
+
+        self::assertTrue($dataDefinition->hasDataDefinitionField(0));
+    }
+
     public function testGetDataDefinitionFields(): void
     {
         $dataDefinition = new DataDefinition([
@@ -43,6 +52,17 @@ class DataDefinitionTest extends TestCase
         ]);
 
         $dataDefinitionField = $dataDefinition->getDataDefinitionField('testkey');
+
+        self::assertInstanceOf(DataDefinitionFieldInterface::class, $dataDefinitionField);
+    }
+
+    public function testGetDataDefinitionFieldByNumIndex(): void
+    {
+        $dataDefinition = new DataDefinition([
+             new DataDefinitionField([])
+        ]);
+
+        $dataDefinitionField = $dataDefinition->getDataDefinitionField(0);
 
         self::assertInstanceOf(DataDefinitionFieldInterface::class, $dataDefinitionField);
     }

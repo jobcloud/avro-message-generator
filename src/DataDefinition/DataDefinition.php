@@ -58,10 +58,14 @@ class DataDefinition implements DataDefinitionInterface
      */
     private function isValidDataDefinitionFieldKey($dataDefinitionFieldKey): bool
     {
-        if (false === is_string($dataDefinitionFieldKey) && false === is_integer($dataDefinitionFieldKey)) {
-            return false;
+        if (is_string($dataDefinitionFieldKey)) {
+            return true;
         }
 
-        return true;
+        if (is_integer($dataDefinitionFieldKey)) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -50,6 +50,7 @@ class DataDefinitionFactoryTest extends TestCase
         $dataDefinition = $dataDefinitionFactory->create(["value" => "testValue"]);
 
         self::assertInstanceOf(DataDefinitionInterface::class, $dataDefinition);
+        self::assertInstanceOf(DataDefinitionFieldInterface::class, $dataDefinition->getDataDefinitionField(0));
     }
 
     public function testCreateNeatedSchema(): void
