@@ -634,7 +634,7 @@ class SchemaFieldValueResolverTest extends TestCase
 
         $value = $schemaFieldValueResolver->getValue([
             'type' => 'string',
-            'name' => 'testNameKey'
+            'name' => 'testNameKey.'
         ], ['pathKey'], false);
 
         self::assertSame('testValue', $value);

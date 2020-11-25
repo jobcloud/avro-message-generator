@@ -16,12 +16,13 @@ class DataDefinitionTest extends TestCase
     public function testHasDataDefinitionField(): void
     {
         $dataDefinition = new DataDefinition([
-            'testkey' => new DataDefinitionField([])
+            'testkey' => new DataDefinitionField([]),
+            1.3 => new DataDefinitionField([])
         ]);
 
         self::assertTrue($dataDefinition->hasDataDefinitionField('testkey'));
         self::assertFalse($dataDefinition->hasDataDefinitionField('testkey1'));
-        self::assertFalse($dataDefinition->hasDataDefinitionField(null));
+        self::assertFalse($dataDefinition->hasDataDefinitionField(1.3));
     }
 
     public function testHasDataDefinitionFieldByNumKey(): void

@@ -23,6 +23,9 @@ class PayloadGeneratorTest extends TestCase
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
 
+        $schemaFieldValueResolver->expects(self::never())->method('getValue');
+
+        self::expectException(UnsupportedAvroSchemaTypeException::class);
         self::expectExceptionMessage('Schema type "test" is not supported.');
 
         $payloadGenerator->generate('test');
@@ -37,6 +40,8 @@ class PayloadGeneratorTest extends TestCase
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
 
+        $schemaFieldValueResolver->expects(self::never())->method('getValue');
+
         self::expectExceptionMessage('Schema type "test" is not supported.');
 
         $payloadGenerator->generate(['type' => 'test']);
@@ -50,6 +55,8 @@ class PayloadGeneratorTest extends TestCase
         ->getMock();
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
+
+        $schemaFieldValueResolver->expects(self::never())->method('getValue');
 
         self::expectExceptionMessage('Schema must contain type attribute.');
 
@@ -187,7 +194,7 @@ class PayloadGeneratorTest extends TestCase
         ->getMock();
 
         $schemaFieldValueResolver->expects(self::once())->method('getValue')
-            ->with(['type' => 'string'])
+            ->with(['type' => 'string'], [], false)
         ->willReturn('some string');
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
@@ -212,7 +219,7 @@ class PayloadGeneratorTest extends TestCase
             ->with([
                 'name' => 'testField',
                 'type' => 'string'
-            ], ['recordItem'])
+            ], ['recordItem'], false)
             ->willReturn('some string');
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
@@ -246,7 +253,7 @@ class PayloadGeneratorTest extends TestCase
             ->with([
                 'name' => 'testField',
                 'type' => 'string'
-            ], [0])
+            ], [0], false)
             ->willReturn('some string');
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
@@ -329,6 +336,38 @@ class PayloadGeneratorTest extends TestCase
         ]);
     }
 
+    public function testGenerateForSimpleUnionSchema(): void
+    {
+        /** @var SchemaFieldValueResolverInterface|MockObject $schemaFieldValueResolver */
+        $schemaFieldValueResolver = $this->getMockBuilder(SchemaFieldValueResolverInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getValue'])
+            ->getMock();
+
+        $schemaFieldValueResolver->expects(self::once())->method('getValue')
+            ->with(
+                [
+                    'name' => 'nestedField',
+                    'type' => 'string'
+                ],
+                [],
+                false)
+            ->willReturn('some string');
+
+        $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
+
+        self::assertSame(['nestedField' => 'some string'], $payloadGenerator->generate([
+            'type' => 'record',
+            'name' => 'record',
+            'fields' => [
+                [
+                    'name' => 'nestedField',
+                    'type' => ['string']
+                ]
+            ]
+        ]));
+    }
+
     public function testGenerateForMapSchema(): void
     {
         /** @var SchemaFieldValueResolverInterface|MockObject $schemaFieldValueResolver */
@@ -338,7 +377,7 @@ class PayloadGeneratorTest extends TestCase
             ->getMock();
 
         $schemaFieldValueResolver->expects(self::exactly(2))->method('getValue')
-            ->withConsecutive([['type' => 'string']], [['type' => 'string']])
+            ->withConsecutive([['type' => 'string'], [], false], [['type' => 'string'], [], false])
             ->willReturnOnConsecutiveCalls('some key', 'some string');
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);

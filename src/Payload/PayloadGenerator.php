@@ -14,9 +14,6 @@ use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValue
  */
 class PayloadGenerator implements PayloadGeneratorInterface
 {
-    /** @var string */
-    public const UNSUPPORTED_SCHEMA_TYPE_ERROR_MESSAGE = 'Schema type "%s" is not supported.';
-
     private SchemaFieldValueResolverInterface $schemaFieldValueResolver;
 
     /**
@@ -44,7 +41,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
 
         if (false === in_array($decodedSchema['type'], AvroSchemaTypes::getSupportedSchemaTypes())) {
             throw new UnsupportedAvroSchemaTypeException(sprintf(
-                self::UNSUPPORTED_SCHEMA_TYPE_ERROR_MESSAGE,
+                'Schema type "%s" is not supported.',
                 $decodedSchema['type']
             ));
         }
@@ -152,7 +149,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
 
                 if (!$isSchemaTypeSupported) {
                     throw new UnsupportedAvroSchemaTypeException(sprintf(
-                        self::UNSUPPORTED_SCHEMA_TYPE_ERROR_MESSAGE,
+                        'Nested schema type "%s" is not supported.',
                         $decodedSchema['type']
                     ));
                 }
