@@ -54,7 +54,10 @@ class DataDefinitionFieldValidator implements DataDefinitionFieldValidatorInterf
                 '' === trim($decodedDataDefinitionField[DataDefinitionField::COMMAND_FIELD])
             ) {
                 throw new InvalidDataDefinitionFieldException(
-                    sprintf('Data definition field "%s" must be string.', DataDefinitionField::COMMAND_FIELD)
+                    sprintf(
+                        'Data definition field "%s" must be a non empty string.',
+                        DataDefinitionField::COMMAND_FIELD
+                    )
                 );
             }
 
@@ -63,7 +66,7 @@ class DataDefinitionFieldValidator implements DataDefinitionFieldValidatorInterf
                 !is_array($decodedDataDefinitionField[DataDefinitionField::ARGUMENTS_FIELD])
             ) {
                 throw new InvalidDataDefinitionFieldException(
-                    sprintf('Data definition field "%s" must be array.', DataDefinitionField::ARGUMENTS_FIELD)
+                    sprintf('Data definition field "%s" must be an array.', DataDefinitionField::ARGUMENTS_FIELD)
                 );
             }
 

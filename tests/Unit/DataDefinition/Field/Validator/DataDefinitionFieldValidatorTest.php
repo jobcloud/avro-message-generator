@@ -39,7 +39,7 @@ class DataDefinitionFieldValidatorTest extends TestCase
     {
         $validator = new DataDefinitionFieldValidator();
 
-        self::expectExceptionMessage('Data definition field "command" must be string.');
+        self::expectExceptionMessage('Data definition field "command" must be a non empty string.');
 
         $validator->validateDataDefinitionField(['command' => ' ']);
     }
@@ -48,7 +48,7 @@ class DataDefinitionFieldValidatorTest extends TestCase
     {
         $validator = new DataDefinitionFieldValidator();
 
-        self::expectExceptionMessage('Data definition field "arguments" must be array.');
+        self::expectExceptionMessage('Data definition field "arguments" must be an array.');
 
         $validator->validateDataDefinitionField(['command' => 'test', 'arguments' => 'test']);
     }
