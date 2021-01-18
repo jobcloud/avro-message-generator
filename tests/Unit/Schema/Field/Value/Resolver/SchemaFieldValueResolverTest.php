@@ -75,7 +75,9 @@ class SchemaFieldValueResolverTest extends TestCase
         $dataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
             ->willReturn($dataDefinitionField);
 
-        $dataDefinitionField->expects(self::once())->method('getValue')->with($faker)->willReturn('testValue');
+        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('getValue')->willReturn('testValue');
+
 
         $schemaFieldValueResolver = new SchemaFieldValueResolver(
             $faker,
@@ -89,6 +91,103 @@ class SchemaFieldValueResolverTest extends TestCase
         ], [], true);
 
         self::assertSame('testValue', $value);
+    }
+
+    public function testRootSchemaWithExistingDataDefinitionWithCommand(): void
+    {
+        /** @var Faker|MockObject $faker */
+        $faker = $this->getMockBuilder(Faker::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var DataDefinitionInterface|MockObject $dataDefinition */
+        $dataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['hasDataDefinitionField', 'getDataDefinitionField', 'getDataDefinitionFields'])
+            ->getMock();
+
+        /** @var DataDefinitionInterface|MockObject $globalDataDefinition */
+        $globalDataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var DataDefinitionFieldInterface|MockObject $dataDefinitionField */
+        $dataDefinitionField = $this->getMockBuilder(DataDefinitionFieldInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataDefinition->expects(self::once())->method('hasDataDefinitionField')->with(0)
+            ->willReturn(true);
+
+        $dataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
+            ->willReturn($dataDefinitionField);
+
+        $dataDefinitionField->expects(self::exactly(2))->method('getCommand')->willReturn('shuffle');
+        $dataDefinitionField->expects(self::once())->method('getArguments')->willReturn([[1]]);
+        $dataDefinitionField->expects(self::never())->method('getValue');
+
+
+        $schemaFieldValueResolver = new SchemaFieldValueResolver(
+            $faker,
+            $dataDefinition,
+            $globalDataDefinition,
+            null
+        );
+
+        $value = $schemaFieldValueResolver->getValue([
+            'command' => 'shuffle',
+            'arguments' => [[1]]
+        ], [], true);
+
+        self::assertSame(null, $value);
+    }
+
+    public function testRootSchemaWithExistingDataDefinitionWithCommandAndWithoutArguments(): void
+    {
+        /** @var Faker|MockObject $faker */
+        $faker = $this->getMockBuilder(Faker::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var DataDefinitionInterface|MockObject $dataDefinition */
+        $dataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['hasDataDefinitionField', 'getDataDefinitionField', 'getDataDefinitionFields'])
+            ->getMock();
+
+        /** @var DataDefinitionInterface|MockObject $globalDataDefinition */
+        $globalDataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var DataDefinitionFieldInterface|MockObject $dataDefinitionField */
+        $dataDefinitionField = $this->getMockBuilder(DataDefinitionFieldInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $dataDefinition->expects(self::once())->method('hasDataDefinitionField')->with(0)
+            ->willReturn(true);
+
+        $dataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
+            ->willReturn($dataDefinitionField);
+
+        $dataDefinitionField->expects(self::exactly(2))->method('getCommand')->willReturn('shuffle');
+        $dataDefinitionField->expects(self::once())->method('getArguments')->willReturn(null);
+        $dataDefinitionField->expects(self::never())->method('getValue');
+
+
+        $schemaFieldValueResolver = new SchemaFieldValueResolver(
+            $faker,
+            $dataDefinition,
+            $globalDataDefinition,
+            null
+        );
+
+        $value = $schemaFieldValueResolver->getValue([
+            'command' => 'shuffle'
+        ], [], true);
+
+        self::assertSame(null, $value);
     }
 
     public function testRootSchemaWithExistingGlobalDataDefinition(): void
@@ -126,7 +225,8 @@ class SchemaFieldValueResolverTest extends TestCase
         $globalDataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
             ->willReturn($dataDefinitionField);
 
-        $dataDefinitionField->expects(self::once())->method('getValue')->with($faker)->willReturn('testValue');
+        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('getValue')->willReturn('testValue');
 
         $schemaFieldValueResolver = new SchemaFieldValueResolver(
             $faker,
@@ -579,6 +679,7 @@ class SchemaFieldValueResolverTest extends TestCase
             $globalDataDefinition,
             ['pathKey' => [
                 'nestedPathKey' => [
+                    'wrongNameKey' => 'testWrongValue',
                     'testNameKey' => 'testVALUE'
                 ]
             ]]
@@ -615,7 +716,8 @@ class SchemaFieldValueResolverTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dataDefinitionField->expects(self::once())->method('getValue')->with($faker)->willReturn('testValue');
+        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('getValue')->willReturn('testValue');
 
         $dataDefinition->expects(self::once())->method('hasDataDefinitionField')->with('pathKey.testNameKey')
             ->willReturn(true);

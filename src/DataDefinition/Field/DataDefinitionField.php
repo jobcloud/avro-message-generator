@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator\DataDefinition\Field;
 
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
-
 /**
  * Class DataDefinitionField
  */
@@ -50,26 +48,26 @@ class DataDefinitionField implements DataDefinitionFieldInterface
     }
 
     /**
-     * @param object|null $executor
      * @return mixed
-     * @throws MissingCommandExecutorException
      */
-    public function getValue(?object $executor)
+    public function getValue()
     {
-        if (null !== $this->command) {
-            if (null === $executor) {
-                throw new MissingCommandExecutorException(
-                    sprintf('Missing executor for "%s" command.', $this->command)
-                );
-            }
-
-            if (null === $this->arguments) {
-                $this->arguments = [];
-            }
-            /** @phpstan-ignore-next-line */
-            return call_user_func_array(array($executor, $this->command), $this->arguments);
-        }
-
         return $this->value;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCommand(): ?string
+    {
+        return $this->command;
+    }
+
+    /**
+     * @return array<integer, mixed>|null
+     */
+    public function getArguments(): ?array
+    {
+        return $this->arguments;
     }
 }

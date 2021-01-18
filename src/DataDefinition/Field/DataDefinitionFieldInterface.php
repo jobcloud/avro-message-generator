@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator\DataDefinition\Field;
 
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
-
 /**
  * Interface DataDefinitionFieldInterface
  */
 interface DataDefinitionFieldInterface
 {
     /**
-     * @param object|null $executor
      * @return mixed
-     * @throws MissingCommandExecutorException
      */
-    public function getValue(?object $executor);
+    public function getValue();
+
+    /**
+     * @return string|null
+     */
+    public function getCommand(): ?string;
+
+    /**
+     * @return array<integer, mixed>|null
+     */
+    public function getArguments(): ?array;
 }

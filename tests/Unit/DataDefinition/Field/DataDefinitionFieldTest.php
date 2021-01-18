@@ -2,8 +2,6 @@
 
 namespace Jobcloud\Avro\Message\Generator\Tests\Unit\DataDefinition\Field;
 
-use Faker\Factory;
-use Faker\Generator as Faker;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionField;
 use PHPUnit\Framework\TestCase;
 
@@ -16,35 +14,21 @@ class DataDefinitionFieldTest extends TestCase
     {
         $dataDefinitionField = new DataDefinitionField(['value' => 'test']);
 
-        self::assertSame('test', $dataDefinitionField->getValue(null));
+        self::assertSame('test', $dataDefinitionField->getValue());
     }
 
-    public function testGetValueWithCommandWithoutArguments(): void
+    public function testGetCommandWithoutArguments(): void
     {
-        /** @var Faker $faker */
-        $faker = Factory::create();
-
         $dataDefinitionField = new DataDefinitionField(['command' => 'word']);
 
-        self::assertIsString($dataDefinitionField->getValue($faker));
+        self::assertSame('word', $dataDefinitionField->getCommand());
     }
 
-    public function testGetValueWithCommandWitArguments(): void
-    {
-        /** @var Faker $faker */
-        $faker = Factory::create();
-
-        $dataDefinitionField = new DataDefinitionField(['command' => 'randomDigitNot', 'arguments' => [5]]);
-
-        self::assertIsInt($dataDefinitionField->getValue($faker));
-    }
-
-    public function testGetValueWithCommandWithoutExecutor(): void
+    public function testGetCommandWitArguments(): void
     {
         $dataDefinitionField = new DataDefinitionField(['command' => 'randomDigitNot', 'arguments' => [5]]);
 
-        self::expectExceptionMessage('Missing executor for "randomDigitNot" command.');
-
-        $dataDefinitionField->getValue(null);
+        self::assertSame('randomDigitNot', $dataDefinitionField->getCommand());
+        self::assertSame([5], $dataDefinitionField->getArguments());
     }
 }

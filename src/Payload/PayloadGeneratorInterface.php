@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator\Payload;
 
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
 use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException;
 
 /**
@@ -15,7 +14,7 @@ interface PayloadGeneratorInterface
     /**
      * @param string|array<string, mixed> $decodedSchema
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException|MissingCommandExecutorException
+     * @throws UnsupportedAvroSchemaTypeException
      */
     public function generate($decodedSchema);
 }
