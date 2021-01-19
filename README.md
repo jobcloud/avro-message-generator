@@ -41,7 +41,7 @@ All data definitions files should be stored in the same directory, path of the d
 Name of the global data definition file should be "global", name of schema specific data definition file should be the same as schema name in the schema registry.
 
 #### Predefined payload
-Avro message generator supports predefined payload as data source as well, and this data source has highest priority if it is used. Predefined payload should be either numeric or associative multidimensional array which follows schema structure, and it can be passed directly in call of generate method. 
+Avro message generator supports predefined payload as data source as well, and this data source has highest priority if it is used. Predefined payload should be either data appropriate to schema type or numeric/associative multidimensional array which follows schema structure (for complex schema types), and it can be passed directly in call of generate method. 
 
 ### Priority of data sources
 Avro message generator uses SchemaFieldValueResolver which resolves schema/field value based on available data sources and some priority.
@@ -56,11 +56,133 @@ And finally, in case that resolver can not resolve schema/field value based on p
 
 ### Predefined payload and data definition structure
 
-Avro schema can be either simple or complex type. 
+Avro schema can be either primitive or complex type. 
 
-Some simple types are: int, string, boolean...
+Some primitive types are: int, string, boolean...
 
 Some complex types are: Records, Enums, Arrays...
 
 #### Predefined payload
-As we mentioned eralier, predefined payload 
+As mentioned earlier, predefined payload is either data appropriate to schema type or numeric/associative multidimensional array which follows schema structure (for complex schema types).
+
+##### Primitive schema types examples:
+String schema type
+```json
+{"type": "string"}
+```
+
+```php
+$predefinedPayload = 'testData';
+
+$generator->generateAvroMessageBody($topicName, $predefinedPayload);
+```
+
+Int schema type
+```json
+{"type": "int"}
+```
+
+```php
+$predefinedPayload = 123;
+
+$generator->generateAvroMessageBody($topicName, $predefinedPayload);
+```
+
+Boolean schema type
+```json
+{"type": "boolean"}
+```
+
+```php
+$predefinedPayload = true;
+
+$generator->generateAvroMessageBody($topicName, $predefinedPayload);
+```
+
+##### Complex schema types examples:
+Record schema type
+```json
+{
+  "name": "testName",
+  "namespace": "testNameSpace",
+  "type": "record",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "fieldOfArraySchemaType",
+      "type": {
+        "items": {
+          "fields": [
+            {
+              "name": "nestedField1",
+              "type": "string"
+            },
+            {
+              "name": "nestedField2",
+              "type": "int"
+            }
+          ],
+          "name": "fieldOfRecordSchemaType",
+          "type": "record"
+        },
+        "type": "array"
+      }
+    }
+  ]
+}
+```
+Name field is skipped from predefined payload, it will be generated using other data source.
+```php
+$predefinedPayload = [
+    'id' => 'testId',
+    'fieldOfArraySchemaType' => [
+        0 => [
+            'fieldOfRecordSchemaType' => [
+                'nestedField1' => 'testValue',
+                'nestedField1' => 123
+            ]
+        ]
+    ]
+];
+
+$generator->generateAvroMessageBody($topicName, $predefinedPayload);
+```
+
+Array schema type
+```json
+{
+  "items": "string",
+  "type": "array"
+}
+```
+
+```php
+$predefinedPayload = [
+    'testValue',
+];
+
+$generator->generateAvroMessageBody($topicName, $predefinedPayload);
+```
+
+#### Data definition
+As mentioned earlier, data definition is json file and can be global or schema specific. 
+
+Each data definition file can contain one or more definitions.  
+
+For primitive schema types, data definition file can contain maximum one definition.
+
+For complex schema types, data definition file can contain definition for each nested field.
+
+Each definition, inside data definition file, has key which can be numeric or associative. 
+
+Global data definition is common data source for all schemas of complex types, it should not contain definitions related to schemas of primitive types, it can but will not work properly in some cases. 
+
+Main difference between global and schema specific data definitions is in definition key structure. Each definition inside global data definition should have associative key which should be field name.
+
