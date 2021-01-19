@@ -75,7 +75,8 @@ class SchemaFieldValueResolverTest extends TestCase
         $dataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
             ->willReturn($dataDefinitionField);
 
-        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('isCommandField')->willReturn(false);
+        $dataDefinitionField->expects(self::never())->method('getCommand');
         $dataDefinitionField->expects(self::once())->method('getValue')->willReturn('testValue');
 
 
@@ -122,7 +123,8 @@ class SchemaFieldValueResolverTest extends TestCase
         $dataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
             ->willReturn($dataDefinitionField);
 
-        $dataDefinitionField->expects(self::exactly(2))->method('getCommand')->willReturn('shuffle');
+        $dataDefinitionField->expects(self::once())->method('isCommandField')->willReturn(true);
+        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn('shuffle');
         $dataDefinitionField->expects(self::once())->method('getArguments')->willReturn([[1]]);
         $dataDefinitionField->expects(self::never())->method('getValue');
 
@@ -171,8 +173,9 @@ class SchemaFieldValueResolverTest extends TestCase
         $dataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
             ->willReturn($dataDefinitionField);
 
-        $dataDefinitionField->expects(self::exactly(2))->method('getCommand')->willReturn('shuffle');
-        $dataDefinitionField->expects(self::once())->method('getArguments')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('isCommandField')->willReturn(true);
+        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn('shuffle');
+        $dataDefinitionField->expects(self::once())->method('getArguments')->willReturn([]);
         $dataDefinitionField->expects(self::never())->method('getValue');
 
 
@@ -225,7 +228,8 @@ class SchemaFieldValueResolverTest extends TestCase
         $globalDataDefinition->expects(self::once())->method('getDataDefinitionField')->with(0)
             ->willReturn($dataDefinitionField);
 
-        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('isCommandField')->willReturn(false);
+        $dataDefinitionField->expects(self::never())->method('getCommand');
         $dataDefinitionField->expects(self::once())->method('getValue')->willReturn('testValue');
 
         $schemaFieldValueResolver = new SchemaFieldValueResolver(
@@ -716,7 +720,8 @@ class SchemaFieldValueResolverTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $dataDefinitionField->expects(self::once())->method('getCommand')->willReturn(null);
+        $dataDefinitionField->expects(self::once())->method('isCommandField')->willReturn(false);
+        $dataDefinitionField->expects(self::never())->method('getCommand');
         $dataDefinitionField->expects(self::once())->method('getValue')->willReturn('testValue');
 
         $dataDefinition->expects(self::once())->method('hasDataDefinitionField')->with('pathKey.testNameKey')

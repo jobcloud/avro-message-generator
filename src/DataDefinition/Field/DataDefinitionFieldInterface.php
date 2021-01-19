@@ -20,7 +20,17 @@ interface DataDefinitionFieldInterface
     public function getCommand(): ?string;
 
     /**
-     * @return array<integer, mixed>|null
+     * @return array<integer, mixed>
      */
-    public function getArguments(): ?array;
+    public function getArguments(): array;
+
+    /**
+     * @return bool
+     */
+    public function isValueField(): bool;
+
+    /**
+     * @return bool
+     */
+    public function isCommandField(): bool;
 }

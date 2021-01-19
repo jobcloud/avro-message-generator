@@ -163,11 +163,9 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
      */
     private function resolveValue(DataDefinitionFieldInterface $field)
     {
-        if (null !== $field->getCommand()) {
-            $arguments = $field->getArguments() ?? [];
-
+        if ($field->isCommandField()) {
             /** @phpstan-ignore-next-line */
-            return call_user_func_array(array($this->faker, $field->getCommand()), $arguments);
+            return call_user_func_array(array($this->faker, $field->getCommand()), $field->getArguments());
         }
 
         return $field->getValue();

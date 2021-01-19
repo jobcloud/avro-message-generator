@@ -29,12 +29,16 @@ class DataDefinitionField implements DataDefinitionFieldInterface
     /** @var array<integer, mixed>|null */
     private ?array $arguments = null;
 
+    private bool $isValueField = false;
+
     /**
      * @param array<string|integer, mixed> $decodedDataDefinitionField
      */
     public function __construct(array $decodedDataDefinitionField)
     {
         if (array_key_exists(self::VALUE_FIELD, $decodedDataDefinitionField)) {
+            // value can be null
+            $this->isValueField = true;
             $this->value = $decodedDataDefinitionField[self::VALUE_FIELD];
         }
 
@@ -64,10 +68,26 @@ class DataDefinitionField implements DataDefinitionFieldInterface
     }
 
     /**
-     * @return array<integer, mixed>|null
+     * @return array<integer, mixed>
      */
-    public function getArguments(): ?array
+    public function getArguments(): array
     {
-        return $this->arguments;
+        return $this->arguments ?? [];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValueField(): bool
+    {
+        return $this->isValueField;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommandField(): bool
+    {
+        return null !== $this->getCommand();
     }
 }

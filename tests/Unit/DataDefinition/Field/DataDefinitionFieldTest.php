@@ -22,6 +22,7 @@ class DataDefinitionFieldTest extends TestCase
         $dataDefinitionField = new DataDefinitionField(['command' => 'word']);
 
         self::assertSame('word', $dataDefinitionField->getCommand());
+        self::assertSame([], $dataDefinitionField->getArguments());
     }
 
     public function testGetCommandWitArguments(): void
@@ -30,5 +31,25 @@ class DataDefinitionFieldTest extends TestCase
 
         self::assertSame('randomDigitNot', $dataDefinitionField->getCommand());
         self::assertSame([5], $dataDefinitionField->getArguments());
+    }
+
+    public function testIsValueField(): void
+    {
+        $dataDefinitionField = new DataDefinitionField(['command' => 'word']);
+
+        $dataDefinitionField1 = new DataDefinitionField(['value' => null]);
+
+        self::assertFalse($dataDefinitionField->isValueField());
+        self::assertTrue($dataDefinitionField1->isValueField());
+    }
+
+    public function testIsCommandField(): void
+    {
+        $dataDefinitionField = new DataDefinitionField(['value' => 'test']);
+
+        $dataDefinitionField1 = new DataDefinitionField(['command' => 'word']);
+
+        self::assertFalse($dataDefinitionField->isCommandField());
+        self::assertTrue($dataDefinitionField1->isCommandField());
     }
 }
