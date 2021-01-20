@@ -413,7 +413,7 @@ $message = $generator->generateAvroMessageBody($topicName, [
 // do something with avro encoded $message
 ```
 
-For each field from the schema SchemaFieldValueResolver will resolve value based on available data sources and them priorities, so message before encoding will be array like this:
+For each field from the schema SchemaFieldValueResolver will resolve value based on available data sources and their priorities, so message before encoding will be array like this:
 ```text
 array(3) {
   ["id"]=>
