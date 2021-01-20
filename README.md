@@ -26,7 +26,7 @@ cp docker/.env.example docker/.env
 ## How it works
 Avro message generator first loads avro schema from schema registry, based on topic name, and then generates avro message based on loaded schema and appropriate data source. 
 
-###Data sources
+### Data sources
 Avro message generator supports multiple data sources.
 
 #### Faker
@@ -392,7 +392,7 @@ $cachedRegistry = new CachedRegistry(
 $registry = new AvroSchemaRegistry($cachedRegistry);
 $recordSerializer = new RecordSerializer($cachedRegistry);
 
-$topicName = 'unity.candidate.entity.candidate';
+$topicName = 'testNameSpace.testName';
 
 $registry->addBodySchemaMappingForTopic(
     $topicName,
