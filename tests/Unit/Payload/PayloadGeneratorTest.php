@@ -377,7 +377,7 @@ class PayloadGeneratorTest extends TestCase
             ->getMock();
 
         $schemaFieldValueResolver->expects(self::exactly(2))->method('getValue')
-            ->withConsecutive([['type' => 'string'], [], false], [['type' => 'string'], [], false])
+            ->withConsecutive([['type' => 'string'], [base64_encode('fakeKey')], false], [['type' => 'string'], [], false])
             ->willReturnOnConsecutiveCalls('some key', 'some string');
 
         $payloadGenerator = new PayloadGenerator($schemaFieldValueResolver);
