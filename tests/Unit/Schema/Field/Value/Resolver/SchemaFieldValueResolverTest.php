@@ -388,6 +388,7 @@ class SchemaFieldValueResolverTest extends TestCase
         ], [], true);
 
         self::assertIsFloat($value);
+        self::assertSame('.', substr((string) $value, -3, 1));
     }
 
     public function testDoubleRootSchemaWithoutDataDefinitions(): void
