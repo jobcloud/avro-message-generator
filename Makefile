@@ -1,4 +1,4 @@
-.PHONY: clean fix-code-style code-check code-style static-analysis infection-testing test test-unit test-integration coverage install-dependencies update-dependencies
+.PHONY: clean fix-code-style code-check code-style static-analysis infection-testing test test-unit test-integration coverage install-dependencies update-dependencies pcov-enable pcov-disable
 .DEFAULT_GOAL := test
 
 INFECTION = ./vendor/bin/infection
@@ -29,7 +29,9 @@ static-analysis:
 infection-testing:
 	make coverage
 	cp -f build/logs/phpunit/junit.xml build/logs/phpunit/coverage/junit.xml
+	sudo php-ext-disable pcov
 	${INFECTION} --coverage=build/logs/phpunit --min-msi=92 --threads=`nproc`
+	sudo php-ext-enable pcov
 
 test:
 	${PHPUNIT} --no-coverage
@@ -49,6 +51,12 @@ install-dependencies:
 update-dependencies:
 	composer update
 
+pcov-enable:
+	sudo php-ext-enable pcov
+
+pcov-disable:
+	sudo php-ext-disable pcov
+
 help:
 	# Usage:
 	#   make <target> [OPTION=value]
@@ -67,3 +75,5 @@ help:
 	#   install-dependencies    Install dependencies
 	#   update-dependencies     Run composer update
 	#   help                    You're looking at it!
+	#   pcov-enable         	Enable pcov
+	#   pcov-disable        	Disable pcov

@@ -20,10 +20,10 @@ COPY --chown=www-data:www-data dev/php/files/user-home /home/www-data
 
 # PHP: Copy configuration files & remove dist files
 COPY dev/php/files/bin/ /usr/local/bin/
+COPY dev/php/files/php/ /phpIni
 
 # PHP: Install php extensions
-RUN mkdir /phpIni && \
-    pecl channel-update pecl.php.net && \
+RUN pecl channel-update pecl.php.net && \
     pecl install rdkafka-4.1.2 pcov && \
     php-ext-enable rdkafka pcov
 
