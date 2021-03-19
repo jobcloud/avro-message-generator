@@ -115,7 +115,6 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 
                 shuffle($symbols);
 
-
                 return $symbols[0];
             default: // AvroSchemaTypes::STRING_TYPE
                 return $this->faker->word;

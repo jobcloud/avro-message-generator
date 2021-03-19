@@ -1,4 +1,4 @@
-FROM php:7.4-cli-alpine3.12
+FROM php:7.4-cli-alpine3.13
 
 ARG USER_ID
 
@@ -20,6 +20,7 @@ COPY --chown=www-data:www-data dev/php/files/user-home /home/www-data
 
 # PHP: Copy configuration files & remove dist files
 COPY dev/php/files/bin/ /usr/local/bin/
+COPY dev/php/files/php/ /phpIni
 
 # PHP: Install php extensions
 RUN mkdir /phpIni && \

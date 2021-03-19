@@ -106,11 +106,20 @@ class PayloadGenerator implements PayloadGeneratorInterface
                     ];
                 }
 
+                $mapKeyPath = [];
+
+                if ($isRootSchema) {
+                    // force resolver to use Faker for key generation
+                    $fakeKeyPath = base64_encode('fakeKey');
+
+                    $mapKeyPath[] = $fakeKeyPath;
+                }
+
                 $key = $this->schemaFieldValueResolver->getValue(
                     [
                         'type' => AvroSchemaTypes::STRING_TYPE
                     ],
-                    []
+                    $mapKeyPath
                 );
 
                 $payload = [
