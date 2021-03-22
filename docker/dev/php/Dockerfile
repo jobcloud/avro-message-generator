@@ -23,8 +23,7 @@ COPY dev/php/files/bin/ /usr/local/bin/
 COPY dev/php/files/php/ /phpIni
 
 # PHP: Install php extensions
-RUN mkdir /phpIni && \
-    pecl channel-update pecl.php.net && \
+RUN pecl channel-update pecl.php.net && \
     pecl install rdkafka pcov && \
     php-ext-enable rdkafka pcov
 
