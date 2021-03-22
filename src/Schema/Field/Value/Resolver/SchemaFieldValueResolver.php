@@ -10,9 +10,6 @@ use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionField as 
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionFieldInterface;
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 
-/**
- * Class SchemaFieldValueResolver
- */
 class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 {
     private Faker $faker;

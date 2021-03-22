@@ -6,9 +6,6 @@ namespace Jobcloud\Avro\Message\Generator\DataDefinition;
 
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionFieldInterface;
 
-/**
- * Class DataDefinition
- */
 class DataDefinition implements DataDefinitionInterface
 {
     /** @var array<string|integer, DataDefinitionFieldInterface> */

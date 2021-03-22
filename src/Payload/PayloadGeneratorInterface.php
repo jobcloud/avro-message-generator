@@ -6,9 +6,6 @@ namespace Jobcloud\Avro\Message\Generator\Payload;
 
 use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException;
 
-/**
- * Interface PayloadGeneratorInterface
- */
 interface PayloadGeneratorInterface
 {
     /**

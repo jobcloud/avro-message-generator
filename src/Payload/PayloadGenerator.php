@@ -8,9 +8,6 @@ use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValueResolverInterface;
 
-/**
- * Class PayloadGenerator
- */
 class PayloadGenerator implements PayloadGeneratorInterface
 {
     private SchemaFieldValueResolverInterface $schemaFieldValueResolver;

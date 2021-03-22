@@ -7,9 +7,6 @@ namespace Jobcloud\Avro\Message\Generator\DataDefinition\Field\Validator;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionField;
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
 
-/**
- * Class DataDefinitionFieldValidator
- */
 class DataDefinitionFieldValidator implements DataDefinitionFieldValidatorInterface
 {
     /** @var array<integer, string> */

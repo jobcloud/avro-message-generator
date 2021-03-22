@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Jobcloud\Avro\Message\Generator\DataDefinition\Provider;
 
 use DirectoryIterator;
-use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinition;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Factory\DataDefinitionFactoryInterface;
 use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJsonException;
@@ -14,9 +13,6 @@ use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 use JsonException;
 use RuntimeException;
 
-/**
- * Class DataDefinitionProvider
- */
 class DataDefinitionProvider implements DataDefinitionProviderInterface
 {
     /** @var string */

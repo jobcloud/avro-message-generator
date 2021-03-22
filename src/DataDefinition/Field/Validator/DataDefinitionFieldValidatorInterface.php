@@ -6,9 +6,6 @@ namespace Jobcloud\Avro\Message\Generator\DataDefinition\Field\Validator;
 
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
 
-/**
- * Interface DataDefinitionFieldValidatorInterface
- */
 interface DataDefinitionFieldValidatorInterface
 {
     /**

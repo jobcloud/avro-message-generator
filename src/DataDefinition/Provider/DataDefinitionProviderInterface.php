@@ -8,9 +8,6 @@ use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\Exception\IncorrectDataDefinitionJsonException;
 use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 
-/**
- * Interface DataDefinitionProviderInterface
- */
 interface DataDefinitionProviderInterface
 {
     /**

@@ -11,9 +11,6 @@ use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValue
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValueResolverInterface;
 use Faker\Generator as Faker;
 
-/**
- * Class SchemaFieldValueResolverFactory
- */
 class SchemaFieldValueResolverFactory implements SchemaFieldValueResolverFactoryInterface
 {
     private Faker $faker;

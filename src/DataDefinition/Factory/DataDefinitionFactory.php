@@ -10,9 +10,6 @@ use Jobcloud\Avro\Message\Generator\DataDefinition\Field\Factory\DataDefinitionF
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\Validator\DataDefinitionFieldValidatorInterface;
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
 
-/**
- * Class DataDefinitionFactory
- */
 class DataDefinitionFactory implements DataDefinitionFactoryInterface
 {
     private DataDefinitionFieldValidatorInterface $dataDefinitionFieldValidator;

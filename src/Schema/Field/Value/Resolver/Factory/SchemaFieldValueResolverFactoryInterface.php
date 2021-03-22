@@ -7,9 +7,6 @@ namespace Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\Factory;
 use Jobcloud\Avro\Message\Generator\Exception\UnexistingDataDefinitionException;
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValueResolverInterface;
 
-/**
- * Interface SchemaFieldValueResolverFactoryInterface
- */
 interface SchemaFieldValueResolverFactoryInterface
 {
     /**
