@@ -49,7 +49,7 @@ class DataDefinition implements DataDefinitionInterface
      */
     public function getDataDefinitionField($dataDefinitionFieldKey): ?DataDefinitionFieldInterface
     {
-        return $this->dataDefinitionFields[$dataDefinitionFieldKey];
+        return $this->dataDefinitionFields[$dataDefinitionFieldKey] ?? null;
     }
 
     /**
