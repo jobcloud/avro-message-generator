@@ -100,13 +100,13 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             case AvroSchemaTypes::NULL_TYPE:
                 return null;
             case AvroSchemaTypes::BOOLEAN_TYPE:
-                return (bool) strcmp($this->faker->title, $this->faker->title);
+                return $this->faker->title() === 'Mr.';
             case AvroSchemaTypes::INT_TYPE:
             case AvroSchemaTypes::LONG_TYPE:
                 return $this->faker->randomDigit;
             case AvroSchemaTypes::FLOAT_TYPE:
             case AvroSchemaTypes::DOUBLE_TYPE:
-                return $this->faker->randomFloat;
+                return $this->faker->randomFloat(1);
             case AvroSchemaTypes::ENUM_TYPE:
                 $symbols = $decodedSchema['symbols'];
 

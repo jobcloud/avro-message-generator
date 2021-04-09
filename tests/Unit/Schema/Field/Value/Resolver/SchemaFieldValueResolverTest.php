@@ -332,8 +332,13 @@ class SchemaFieldValueResolverTest extends TestCase
 
     public function testBooleanRootSchemaWithoutDataDefinitions(): void
     {
-        /** @var Faker $faker */
-        $faker = Factory::create();
+        /** @var Faker|MockObject $faker */
+        $faker = $this->getMockBuilder(Faker::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['title'])
+            ->getMock();
+
+        $faker->expects(self::once())->method('title')->with()->willReturn('Mr.');
 
         /** @var DataDefinitionInterface|MockObject $dataDefinition */
         $dataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
@@ -368,7 +373,7 @@ class SchemaFieldValueResolverTest extends TestCase
             'type' => 'boolean'
         ], [], true);
 
-        self::assertIsBool($value);
+        self::assertTrue($value);
     }
 
     public function testIntRootSchemaWithoutDataDefinitions(): void
@@ -455,8 +460,13 @@ class SchemaFieldValueResolverTest extends TestCase
 
     public function testFloatRootSchemaWithoutDataDefinitions(): void
     {
-        /** @var Faker $faker */
-        $faker = Factory::create();
+        /** @var Faker|MockObject $faker */
+        $faker = $this->getMockBuilder(Faker::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['randomFloat'])
+            ->getMock();
+
+        $faker->expects(self::once())->method('randomFloat')->with(1)->willReturn(2.12);
 
         /** @var DataDefinitionInterface|MockObject $dataDefinition */
         $dataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
@@ -492,12 +502,18 @@ class SchemaFieldValueResolverTest extends TestCase
         ], [], true);
 
         self::assertIsFloat($value);
+        self::assertSame(2.12, $value);
     }
 
     public function testDoubleRootSchemaWithoutDataDefinitions(): void
     {
-        /** @var Faker $faker */
-        $faker = Factory::create();
+        /** @var Faker|MockObject $faker */
+        $faker = $this->getMockBuilder(Faker::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['randomFloat'])
+            ->getMock();
+
+        $faker->expects(self::once())->method('randomFloat')->with(1)->willReturn(2.12);
 
         /** @var DataDefinitionInterface|MockObject $dataDefinition */
         $dataDefinition = $this->getMockBuilder(DataDefinitionInterface::class)
@@ -533,6 +549,7 @@ class SchemaFieldValueResolverTest extends TestCase
         ], [], true);
 
         self::assertIsFloat($value);
+        self::assertSame(2.12, $value);
     }
 
     public function testEnumRootSchemaWithoutDataDefinitions(): void

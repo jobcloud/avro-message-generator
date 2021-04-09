@@ -67,15 +67,4 @@ class DataDefinitionTest extends TestCase
 
         self::assertInstanceOf(DataDefinitionFieldInterface::class, $dataDefinitionField);
     }
-
-    public function testGetDataDefinitionFieldByNonExistingIndex(): void
-    {
-        $dataDefinition = new DataDefinition([
-            'testkey' => new DataDefinitionField([])
-        ]);
-
-        $dataDefinitionField = $dataDefinition->getDataDefinitionField('testkey1');
-
-        self::assertNull($dataDefinitionField);
-    }
 }

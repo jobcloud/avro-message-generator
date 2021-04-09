@@ -46,11 +46,7 @@ class DataDefinition implements DataDefinitionInterface
      */
     public function getDataDefinitionField($dataDefinitionFieldKey): ?DataDefinitionFieldInterface
     {
-        if (array_key_exists($dataDefinitionFieldKey, $this->dataDefinitionFields)) {
-            return $this->dataDefinitionFields[$dataDefinitionFieldKey];
-        }
-
-        return null;
+        return $this->dataDefinitionFields[$dataDefinitionFieldKey] ?? null;
     }
 
     /**
