@@ -463,7 +463,7 @@ class SchemaFieldValueResolverTest extends TestCase
         /** @var Faker|MockObject $faker */
         $faker = $this->getMockBuilder(Faker::class)
             ->disableOriginalConstructor()
-            ->addMethods(['randomFloat'])
+            ->onlyMethods(['randomFloat'])
             ->getMock();
 
         $faker->expects(self::once())->method('randomFloat')->with(1)->willReturn(2.12);
@@ -510,7 +510,7 @@ class SchemaFieldValueResolverTest extends TestCase
         /** @var Faker|MockObject $faker */
         $faker = $this->getMockBuilder(Faker::class)
             ->disableOriginalConstructor()
-            ->addMethods(['randomFloat'])
+            ->onlyMethods(['randomFloat'])
             ->getMock();
 
         $faker->expects(self::once())->method('randomFloat')->with(1)->willReturn(2.12);
