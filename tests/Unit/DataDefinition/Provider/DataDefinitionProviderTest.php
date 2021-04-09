@@ -27,8 +27,8 @@ class DataDefinitionProviderTest extends TestCase
     {
         parent::tearDown();
 
-        if (true === file_exists('./tests/Definitions/example.definition.txt')) {
-            unlink('./tests/Definitions/example.definition.txt');
+        if (true === file_exists('./tests/Unit/Definitions/example.definition.txt')) {
+            unlink('./tests/Unit/Definitions/example.definition.txt');
         }
     }
 
@@ -42,7 +42,7 @@ class DataDefinitionProviderTest extends TestCase
             ->onlyMethods(['create'])
         ->getMock();
 
-        $provider = new DataDefinitionProvider('./tests/Definitions', $dataDefinitionFactory);
+        $provider = new DataDefinitionProvider('./tests/Unit/Definitions', $dataDefinitionFactory);
 
         $dataDefinitionFactory->expects(self::never())->method('create');
 
@@ -61,7 +61,7 @@ class DataDefinitionProviderTest extends TestCase
             ->onlyMethods(['create'])
         ->getMock();
 
-        $provider = new DataDefinitionProvider('./tests/Definitions', $dataDefinitionFactory);
+        $provider = new DataDefinitionProvider('./tests/Unit/Definitions', $dataDefinitionFactory);
 
         $dataDefinitionFactory->expects(self::never())->method('create');
 
@@ -82,7 +82,7 @@ class DataDefinitionProviderTest extends TestCase
 
         $dataDefinitionFactory->expects(self::once())->method('create')->with(['test' => 'test']);
 
-        $provider = new DataDefinitionProvider('./tests/Definitions', $dataDefinitionFactory);
+        $provider = new DataDefinitionProvider('./tests/Unit/Definitions', $dataDefinitionFactory);
 
         $provider->load();
 
@@ -101,7 +101,7 @@ class DataDefinitionProviderTest extends TestCase
 
         $dataDefinitionFactory->expects(self::once())->method('create')->with(['test' => 'test']);
 
-        $provider = new DataDefinitionProvider('./tests/Definitions', $dataDefinitionFactory);
+        $provider = new DataDefinitionProvider('./tests/Unit/Definitions', $dataDefinitionFactory);
 
         $provider->load();
 
@@ -114,7 +114,7 @@ class DataDefinitionProviderTest extends TestCase
     {
         unlink($this->getTestDefinitionFilePath());
 
-        file_put_contents('./tests/Definitions/example.definition.txt', '');
+        file_put_contents('./tests/Unit/Definitions/example.definition.txt', '');
 
         /** @var DataDefinitionFactoryInterface|MockObject $dataDefinitionFactory */
         $dataDefinitionFactory = $this->getMockBuilder(DataDefinitionFactoryInterface::class)
@@ -122,7 +122,7 @@ class DataDefinitionProviderTest extends TestCase
             ->onlyMethods(['create'])
             ->getMock();
 
-        $provider = new DataDefinitionProvider('./tests/Definitions', $dataDefinitionFactory);
+        $provider = new DataDefinitionProvider('./tests/Unit/Definitions', $dataDefinitionFactory);
 
         $dataDefinitionFactory->expects(self::never())->method('create');
 
@@ -141,7 +141,7 @@ class DataDefinitionProviderTest extends TestCase
             ->onlyMethods(['create'])
             ->getMock();
 
-        $provider = new DataDefinitionProvider('./tests/Definitions', $dataDefinitionFactory);
+        $provider = new DataDefinitionProvider('./tests/Unit/Definitions', $dataDefinitionFactory);
 
         $dataDefinitionFactory->expects(self::never())->method('create');
 
@@ -164,6 +164,6 @@ class DataDefinitionProviderTest extends TestCase
 
     private function getTestDefinitionFilePath(): string
     {
-        return './tests/Definitions/example.definition.json';
+        return './tests/Unit/Definitions/example.definition.json';
     }
 }

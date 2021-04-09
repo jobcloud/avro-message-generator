@@ -1,0 +1,23 @@
+{
+  "id": {
+    "value": "idFromDataDefinitionJson"
+  },
+  "accountId": {
+    "value": "accountIdFromDataDefinitionJson"
+  },
+  "employmentGradeFrom": {
+    "command": "randomDigitNotNull"
+  },
+  "languageRequirements.0.vacancy_language_requirement.metadataApiLanguageId": {
+    "value": "metadataApiLanguageIdFromDataDefinitionJson"
+  },
+  "experience": {
+    "value": "0-1"
+  },
+  "salaryTo": {
+    "value": null
+  },
+  "benefits.0.0": {
+    "value": "benefitsFromDataDefinitionJson"
+  }
+}

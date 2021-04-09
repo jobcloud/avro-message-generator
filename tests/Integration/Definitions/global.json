@@ -1,0 +1,29 @@
+{
+  "id": {
+    "value": "idFromGlobalJson"
+  },
+  "accountId": {
+    "value": "accountIdFromGlobalJson"
+  },
+  "locationId": {
+    "value": "locationIdFromGlobalJson"
+  },
+  "employmentGradeTo": {
+    "command": "randomDigitNotNull"
+  },
+  "metadataApiLanguageLevelId": {
+    "value": 1234
+  },
+  "description": {
+    "value": "descriptionFromGlobalJson"
+  },
+  "createdAt": {
+    "value": "createdAtFromGlobalJson"
+  },
+  "_version": {
+    "command": "uuid"
+  },
+  "createdBy": {
+    "value": "createdByFromGlobalJson"
+  }
+}
