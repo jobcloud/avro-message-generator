@@ -7,9 +7,6 @@ namespace Jobcloud\Avro\Message\Generator\Payload\Factory;
 use Jobcloud\Avro\Message\Generator\Payload\PayloadGeneratorInterface;
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValueResolverInterface;
 
-/**
- * Interface PayloadGeneratorFactoryInterface
- */
 interface PayloadGeneratorFactoryInterface
 {
     /**

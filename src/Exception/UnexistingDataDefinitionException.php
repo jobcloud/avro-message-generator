@@ -6,9 +6,6 @@ namespace Jobcloud\Avro\Message\Generator\Exception;
 
 use Exception;
 
-/**
- * Class UnexistingDataDefinitionException
- */
 class UnexistingDataDefinitionException extends Exception
 {
 

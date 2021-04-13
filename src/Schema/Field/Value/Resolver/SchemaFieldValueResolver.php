@@ -8,12 +8,8 @@ use Faker\Generator as Faker;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionField as Field;
 use Jobcloud\Avro\Message\Generator\DataDefinition\Field\DataDefinitionFieldInterface;
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 
-/**
- * Class SchemaFieldValueResolver
- */
 class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
 {
     private Faker $faker;
@@ -48,7 +44,6 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
      * @param array<integer, string> $path
      * @param bool $isRootSchema
      * @return mixed
-     * @throws MissingCommandExecutorException
      */
     public function getValue(array $decodedSchema, array $path, bool $isRootSchema = false)
     {
@@ -63,7 +58,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
                 /** @var DataDefinitionFieldInterface $field */
                 $field = $this->dataDefinition->getDataDefinitionField($fieldName);
 
-                return $field->getValue($this->faker);
+                return $this->resolveValue($field);
             }
         } else {
             // nested schema
@@ -79,7 +74,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
                 /** @var DataDefinitionFieldInterface $field */
                 $field = $this->dataDefinition->getDataDefinitionField($fieldKey);
 
-                return $field->getValue($this->faker);
+                return $this->resolveValue($field);
             }
         }
 
@@ -87,7 +82,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             /** @var DataDefinitionFieldInterface $field */
             $field = $this->globalDataDefinition->getDataDefinitionField($fieldName);
 
-            return $field->getValue($this->faker);
+            return $this->resolveValue($field);
         }
 
         return $this->generateValueBySchemaType($decodedSchema);
@@ -105,13 +100,13 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
             case AvroSchemaTypes::NULL_TYPE:
                 return null;
             case AvroSchemaTypes::BOOLEAN_TYPE:
-                return $this->faker->title === 'Mr.';
+                return $this->faker->title() === 'Mr.';
             case AvroSchemaTypes::INT_TYPE:
             case AvroSchemaTypes::LONG_TYPE:
                 return $this->faker->randomDigit;
             case AvroSchemaTypes::FLOAT_TYPE:
             case AvroSchemaTypes::DOUBLE_TYPE:
-                return $this->faker->randomFloat(2);
+                return $this->faker->randomFloat(1);
             case AvroSchemaTypes::ENUM_TYPE:
                 $symbols = $decodedSchema['symbols'];
 
@@ -156,5 +151,19 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
         }
 
         return $fields;
+    }
+
+    /**
+     * @param DataDefinitionFieldInterface $field
+     * @return mixed
+     */
+    private function resolveValue(DataDefinitionFieldInterface $field)
+    {
+        if ($field->isCommandField()) {
+            /** @phpstan-ignore-next-line */
+            return call_user_func_array(array($this->faker, $field->getCommand()), $field->getArguments());
+        }
+
+        return $field->getValue();
     }
 }

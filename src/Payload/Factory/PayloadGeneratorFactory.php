@@ -8,9 +8,6 @@ use Jobcloud\Avro\Message\Generator\Payload\PayloadGenerator;
 use Jobcloud\Avro\Message\Generator\Payload\PayloadGeneratorInterface;
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValueResolverInterface;
 
-/**
- * Class PayloadGeneratorFactory
- */
 class PayloadGeneratorFactory implements PayloadGeneratorFactoryInterface
 {
     /**

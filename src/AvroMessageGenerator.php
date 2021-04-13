@@ -13,9 +13,6 @@ use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\Factory\SchemaFi
 use Jobcloud\Kafka\Message\KafkaAvroSchemaInterface;
 use Jobcloud\Kafka\Message\Registry\AvroSchemaRegistryInterface;
 
-/**
- * Class AvroMessageGenerator
- */
 class AvroMessageGenerator implements AvroMessageGeneratorInterface
 {
     private RecordSerializer $recordSerializer;

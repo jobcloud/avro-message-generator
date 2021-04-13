@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator\DataDefinition\Field;
 
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
-
-/**
- * Class DataDefinitionField
- */
 class DataDefinitionField implements DataDefinitionFieldInterface
 {
     /** @var string */
@@ -31,12 +26,16 @@ class DataDefinitionField implements DataDefinitionFieldInterface
     /** @var array<integer, mixed>|null */
     private ?array $arguments = null;
 
+    private bool $isValueField = false;
+
     /**
      * @param array<string|integer, mixed> $decodedDataDefinitionField
      */
     public function __construct(array $decodedDataDefinitionField)
     {
         if (array_key_exists(self::VALUE_FIELD, $decodedDataDefinitionField)) {
+            // value can be null
+            $this->isValueField = true;
             $this->value = $decodedDataDefinitionField[self::VALUE_FIELD];
         }
 
@@ -50,26 +49,42 @@ class DataDefinitionField implements DataDefinitionFieldInterface
     }
 
     /**
-     * @param object|null $executor
      * @return mixed
-     * @throws MissingCommandExecutorException
      */
-    public function getValue(?object $executor)
+    public function getValue()
     {
-        if (null !== $this->command) {
-            if (null === $executor) {
-                throw new MissingCommandExecutorException(
-                    sprintf('Missing executor for "%s" command.', $this->command)
-                );
-            }
-
-            if (null === $this->arguments) {
-                $this->arguments = [];
-            }
-            /** @phpstan-ignore-next-line */
-            return call_user_func_array(array($executor, $this->command), $this->arguments);
-        }
-
         return $this->value;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCommand(): ?string
+    {
+        return $this->command;
+    }
+
+    /**
+     * @return array<integer, mixed>
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments ?? [];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValueField(): bool
+    {
+        return $this->isValueField;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommandField(): bool
+    {
+        return null !== $this->getCommand();
     }
 }

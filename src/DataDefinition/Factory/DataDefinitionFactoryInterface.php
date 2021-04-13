@@ -5,9 +5,6 @@ namespace Jobcloud\Avro\Message\Generator\DataDefinition\Factory;
 use Jobcloud\Avro\Message\Generator\DataDefinition\DataDefinitionInterface;
 use Jobcloud\Avro\Message\Generator\Exception\InvalidDataDefinitionFieldException;
 
-/**
- * Interface DataDefinitionFactoryInterface
- */
 interface DataDefinitionFactoryInterface
 {
     /**

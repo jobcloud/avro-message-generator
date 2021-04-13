@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver;
 
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
-
-/**
- * Interface SchemaFieldValueResolverInterface
- */
 interface SchemaFieldValueResolverInterface
 {
     /**
@@ -16,7 +11,6 @@ interface SchemaFieldValueResolverInterface
      * @param array<integer, string> $path
      * @param bool $isRootSchema
      * @return mixed
-     * @throws MissingCommandExecutorException
      */
     public function getValue(array $decodedSchema, array $path, bool $isRootSchema = false);
 }

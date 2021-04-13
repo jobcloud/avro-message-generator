@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Jobcloud\Avro\Message\Generator\Payload;
 
-use Jobcloud\Avro\Message\Generator\Exception\MissingCommandExecutorException;
 use Jobcloud\Avro\Message\Generator\Exception\UnsupportedAvroSchemaTypeException;
 use Jobcloud\Avro\Message\Generator\Schema\AvroSchemaTypes;
 use Jobcloud\Avro\Message\Generator\Schema\Field\Value\Resolver\SchemaFieldValueResolverInterface;
 
-/**
- * Class PayloadGenerator
- */
 class PayloadGenerator implements PayloadGeneratorInterface
 {
     private SchemaFieldValueResolverInterface $schemaFieldValueResolver;
@@ -27,7 +23,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
     /**
      * @param string|array<string, mixed> $decodedSchema
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException|MissingCommandExecutorException
+     * @throws UnsupportedAvroSchemaTypeException
      */
     public function generate($decodedSchema)
     {
@@ -54,7 +50,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
      * @param array<integer, string> $path
      * @param bool $isRootSchema
      * @return mixed
-     * @throws MissingCommandExecutorException|UnsupportedAvroSchemaTypeException
+     * @throws UnsupportedAvroSchemaTypeException
      */
     private function getPayload(
         array $decodedSchema,
@@ -171,7 +167,7 @@ class PayloadGenerator implements PayloadGeneratorInterface
      * @param array<string, mixed> $decodedSchema
      * @param array<integer, string> $path
      * @return mixed
-     * @throws UnsupportedAvroSchemaTypeException|MissingCommandExecutorException
+     * @throws UnsupportedAvroSchemaTypeException
      */
     private function getPayloadFromUnionField(
         array $decodedSchema,
