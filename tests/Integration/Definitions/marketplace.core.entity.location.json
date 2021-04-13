@@ -1,0 +1,8 @@
+{
+  "companyProfileId": {
+    "value": "companyProfileIdFromDataDefinitionJson"
+  },
+  "updatedAt": {
+    "command": "word"
+  }
+}

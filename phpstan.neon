@@ -1,0 +1,5 @@
+includes:
+    - vendor/mavimo/phpstan-junit/extension.neon
+parameters:
+    level: 8
+    paths: [ src ]
