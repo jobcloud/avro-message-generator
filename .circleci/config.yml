@@ -1,15 +1,14 @@
 version: 2.1 # CircleCI version
 
 orbs:
-  ci-caching: jobcloud/ci-caching@3.1
-  ci-php: jobcloud/ci-php@2.4
+  ci-caching: jobcloud/ci-caching@1.0.2
+  ci-php: jobcloud/ci-php@0.32
 
 workflows:
   test-avro-message-generator:
     jobs:
       - ci-caching/build-docker-images
       - ci-php/install-dependencies:
-          sshFingerprint: "93:f5:27:76:d9:04:03:ed:bc:3d:b3:0a:ae:e4:b0:78"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-caching/build-docker-images
