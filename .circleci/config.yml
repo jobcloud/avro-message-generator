@@ -9,6 +9,7 @@ workflows:
     jobs:
       - ci-caching/build-docker-images
       - ci-php/install-dependencies:
+          sshFingerprint: "93:f5:27:76:d9:04:03:ed:bc:3d:b3:0a:ae:e4:b0:78"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-caching/build-docker-images
