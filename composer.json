@@ -39,5 +39,10 @@
       "Jobcloud\\Avro\\Message\\Generator\\": "src/",
       "Jobcloud\\Avro\\Message\\Generator\\Tests\\": "tests/"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "infection/extension-installer": false
+    }
   }
 }
