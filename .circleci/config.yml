@@ -8,29 +8,29 @@ workflows:
   test-avro-message-generator:
     jobs:
       - ci-caching/build-docker-images:
-          dockerComposeFile: "./docker/docker-compose.yml"
+          dockerComposeFile: "./docker/docker-compose.ci.yml"
       - ci-php/install-dependencies:
-          dockerComposeFile: "./docker/docker-compose.yml"
+          dockerComposeFile: "./docker/docker-compose.ci.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-caching/build-docker-images
       - ci-php/coverage:
-          dockerComposeFile: "./docker/docker-compose.yml"
+          dockerComposeFile: "./docker/docker-compose.ci.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
       - ci-php/infection-testing:
-          dockerComposeFile: "./docker/docker-compose.yml"
+          dockerComposeFile: "./docker/docker-compose.ci.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
       - ci-php/code-style:
-          dockerComposeFile: "./docker/docker-compose.yml"
+          dockerComposeFile: "./docker/docker-compose.ci.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
       - ci-php/static-analysis:
-          dockerComposeFile: "./docker/docker-compose.yml"
+          dockerComposeFile: "./docker/docker-compose.ci.yml"
           dependencyCheckSumFile: "./composer.json"
           requires:
             - ci-php/install-dependencies
