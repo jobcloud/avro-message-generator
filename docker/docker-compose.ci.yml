@@ -11,3 +11,9 @@ services:
     container_name: avro-message-generator-php
     volumes:
       - ../:/var/www/html
+    secrets:
+      - ssh_host_key
+
+secrets:
+  ssh_host_key:
+    file: ~/.ssh/id_rsa

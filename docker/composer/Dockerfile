@@ -20,7 +20,7 @@ COPY files/bin/ /usr/local/bin/
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka && \
+    pecl install rdkafka-6.0.1 && \
     docker-php-ext-install pcntl && \
     php-ext-enable rdkafka
 

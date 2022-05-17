@@ -24,7 +24,7 @@ COPY dev/php/files/php/ /phpIni
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka pcov && \
+    pecl install rdkafka-6.0.1 pcov && \
     php-ext-enable rdkafka pcov
 
 # COMPOSER: install binary

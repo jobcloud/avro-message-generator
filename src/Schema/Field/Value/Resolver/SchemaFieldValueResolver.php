@@ -103,7 +103,7 @@ class SchemaFieldValueResolver implements SchemaFieldValueResolverInterface
                 return $this->faker->title() === 'Mr.';
             case AvroSchemaTypes::INT_TYPE:
             case AvroSchemaTypes::LONG_TYPE:
-                return $this->faker->randomDigit;
+                return $this->faker->randomDigit();
             case AvroSchemaTypes::FLOAT_TYPE:
             case AvroSchemaTypes::DOUBLE_TYPE:
                 return $this->faker->randomFloat(1);
