@@ -8,5 +8,4 @@ use Exception;
 
 class UnsupportedAvroSchemaTypeException extends Exception
 {
-
 }
