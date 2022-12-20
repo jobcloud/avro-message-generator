@@ -1,12 +1,9 @@
-FROM php:7.4-cli-alpine3.13
+FROM php:8.0-cli-alpine3.16
 
 ARG USER_ID
 
 RUN apk --no-cache upgrade && \
-    apk --no-cache add bash git sudo autoconf gcc g++ make shadow
-
-RUN apk add librdkafka librdkafka-dev \
-        --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community
+    apk --no-cache add bash git sudo autoconf gcc g++ make shadow librdkafka librdkafka-dev
 
 RUN if [ -n "$USER_ID" ] && [ "$USER_ID" -lt 60001 ]; then \
         usermod -u ${USER_ID} -o www-data; \
@@ -24,7 +21,7 @@ COPY dev/php/files/php/ /phpIni
 
 # PHP: Install php extensions
 RUN pecl channel-update pecl.php.net && \
-    pecl install rdkafka-6.0.1 pcov && \
+    pecl install rdkafka-6.0.3 pcov && \
     php-ext-enable rdkafka pcov
 
 # COMPOSER: install binary

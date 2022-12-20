@@ -49,6 +49,27 @@ class PayloadGeneratorTest extends TestCase
                     'longitude' => 222.22
                 ]
             ],
+            'languageRequirements' => [
+                [
+                'vacancy_language_requirement' => [
+
+                        'metadataApiLanguageId' => 'en',
+                        'metadataApiLanguageLevelId' => 4
+
+                    ]
+                ]
+            ],
+            'skillRequirements' => [
+                [
+                'vacancy_skill_requirement' => [
+                    'text' => 'Social Media Recruitment'
+                    ]
+                ]
+            ],
+
+            'benefits' => [
+                "test-id"
+            ],
             'updatedAt' => null
         ];
 
@@ -62,8 +83,8 @@ class PayloadGeneratorTest extends TestCase
         self::assertIsInt($payload['employmentGradeTo']);
         self::assertSame(100, $payload['metadataApiEmploymentTypeId']);
         self::assertIsInt($payload['metadataApiEmploymentPositionId']);
-        self::assertSame('metadataApiLanguageIdFromDataDefinitionJson', $payload['languageRequirements'][0]['metadataApiLanguageId']);
-        self::assertSame(1234, $payload['languageRequirements'][0]['metadataApiLanguageLevelId']);
+        self::assertSame('en', $payload['languageRequirements'][0]['metadataApiLanguageId']);
+        self::assertSame(4, $payload['languageRequirements'][0]['metadataApiLanguageLevelId']);
         self::assertSame('0-1', $payload['experience']);
         self::assertSame(111, $payload['metadataApiEducationLevelId']);
         self::assertNull($payload['salaryFrom']);
@@ -144,7 +165,7 @@ class PayloadGeneratorTest extends TestCase
         $schemaFieldValueResolver = $schemaFieldValueResolverFactory->create($topicName, $predefinedPayload);
 
         $payloadGenerator = $payloadGeneratorFactory->create($schemaFieldValueResolver);
-
+//        var_dump($payloadGenerator); die('joe');
         return $payloadGenerator->generate($decodedSchema);
     }
 
