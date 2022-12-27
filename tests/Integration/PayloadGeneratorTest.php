@@ -165,7 +165,7 @@ class PayloadGeneratorTest extends TestCase
         $schemaFieldValueResolver = $schemaFieldValueResolverFactory->create($topicName, $predefinedPayload);
 
         $payloadGenerator = $payloadGeneratorFactory->create($schemaFieldValueResolver);
-//        var_dump($payloadGenerator); die('joe');
+
         return $payloadGenerator->generate($decodedSchema);
     }
 
