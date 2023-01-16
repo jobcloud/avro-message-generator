@@ -43,11 +43,12 @@ workflows:
   daily:
     triggers:
       - schedule:
-          cron: "30 14 * * *"
+          cron: "31 14 * * *"
           filters:
             branches:
               only:
                 - main
+                - feat/MPM-658/composer-update-audit
     jobs:
       - ci-caching/build-docker-images:
           context: dockerhub-credentials
